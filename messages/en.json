@@ -1,0 +1,25 @@
+{
+  "HomePage": {
+    "emergency_portal": "Emergency Info Portal",
+    "updates": "Updates",
+    "shelters": "Shelters",
+    "contacts": "Contacts",
+    "admin": "Admin",
+    "latest_updates": "Latest Updates",
+    "loading": "Loading...",
+    "language": "Language",
+    "english": "English",
+    "burmese": "Burmese",
+    "login": "Login",
+    "logout": "Logout",
+    "add_update": "Add Update",
+    "add_shelter": "Add Shelter",
+    "location": "Location",
+    "phone": "Phone",
+    "capacity": "Capacity",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "full": "Full"
+  }
+}
