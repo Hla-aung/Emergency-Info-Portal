@@ -1,11 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import L, { LatLngTuple } from "leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  ZoomControl,
+} from "react-leaflet";
+import L, { LatLngTuple, Map } from "leaflet";
 import { useGetEarthquakes } from "../hooks/useEarthquake";
 import LoadingScreen from "./common/loading-screen";
+import { Button } from "@/components/ui/button";
+import { Info, Locate } from "lucide-react";
+import { format } from "date-fns";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 const generateMarkerIcon = ({ color = "#E74C3C" }: { color?: string }) => {
   const iconUrl =
@@ -26,6 +41,26 @@ const generateMarkerIcon = ({ color = "#E74C3C" }: { color?: string }) => {
   });
 };
 
+const generateCircleIcon = ({ magnitude }: { magnitude: number }) => {
+  const size = Math.pow(2, magnitude) / 2;
+  const iconUrl =
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(`
+    <svg width="${size * 2}" height="${size * 2}" viewBox="0 0 ${size * 2} ${
+      size * 2
+    }" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="${size}" cy="${size}" r="${size}" fill="red" fill-opacity="0.2" stroke="white" stroke-width="0.5"/>
+    </svg>
+  `);
+
+  return L.icon({
+    iconUrl: iconUrl,
+    iconSize: [size * 2, size * 2],
+    iconAnchor: [size, size],
+    popupAnchor: [0, -size],
+  });
+};
+
 export interface Earthquake {
   id: string;
   properties: {
@@ -39,6 +74,7 @@ export interface Earthquake {
 }
 
 export default function EarthquakeMap() {
+  const mapRef = useRef<Map>(null);
   const [center, setCenter] = useState<LatLngTuple>([21.975, 96.083]);
   const [earthquakes, setEarthquakes] = useState<Earthquake[]>([]);
   const [previousQuakes, setPreviousQuakes] = useState<Earthquake[]>([]);
@@ -61,6 +97,20 @@ export default function EarthquakeMap() {
 
   const { data, isPending, isSuccess } = useGetEarthquakes();
 
+  const handleLocate = () => {
+    if (mapRef.current) {
+      const map = mapRef.current;
+      map.locate({
+        setView: true,
+        maxZoom: 16,
+      });
+
+      map.on("locationfound", (e) => {
+        setCenter([e.latlng.lat, e.latlng.lng]);
+      });
+    }
+  };
+
   useEffect(() => {
     if (isSuccess) {
       if (previousQuakes.length > 0) {
@@ -79,34 +129,31 @@ export default function EarthquakeMap() {
   }, [isSuccess, data]);
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setCenter([position.coords.latitude, position.coords.longitude]);
-      });
-    } else {
-      setCenter([21.975, 96.083]);
-    }
-  }, []);
+    handleLocate();
+  }, [mapRef.current]);
 
   if (isPending) {
     return <LoadingScreen />;
   }
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="w-full relative min-h-screen">
       <MapContainer
         center={center}
         zoom={12}
         style={{ height: "99vh", width: "100%" }}
+        ref={mapRef}
+        zoomControl={false}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        <ZoomControl position="bottomleft" />
         <Marker
           key={"current-location"}
           position={center}
-          icon={generateMarkerIcon({ color: "#1c31d4" })}
+          icon={generateMarkerIcon({ color: "#2563eb" })}
         >
           <Popup>
             <div>
@@ -121,7 +168,7 @@ export default function EarthquakeMap() {
               earthquake.geometry.coordinates[1],
               earthquake.geometry.coordinates[0],
             ]}
-            icon={generateMarkerIcon({ color: "#E74C3C" })}
+            icon={generateCircleIcon({ magnitude: earthquake.properties.mag })}
           >
             <Popup>
               <div>
@@ -134,6 +181,36 @@ export default function EarthquakeMap() {
             </Popup>
           </Marker>
         ))}
+        <Button
+          size="icon"
+          className="absolute bottom-5 right-5 z-[500] rounded-full"
+          onClick={handleLocate}
+        >
+          <Locate />
+        </Button>
+        <div className="absolute top-5 right-5 z-[500]">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="rounded-full"
+                >
+                  <Info />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="z-[500]" align="end">
+                <div className="space-y-1">
+                  <h1 className="font-semibold">{data?.metadata?.title}</h1>
+                  <p className="text-secondary">
+                    {format(data?.metadata?.generated, "PPpp")}
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </MapContainer>
     </div>
   );

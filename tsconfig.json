@@ -18,7 +18,11 @@
       }
     ],
     "target": "ES2017",
-    "types": ["@serwist/next/typings"]
+    "types": ["@serwist/next/typings"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "include": [
     "next-env.d.ts",
