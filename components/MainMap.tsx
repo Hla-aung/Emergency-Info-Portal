@@ -183,34 +183,6 @@ export default function MainMap() {
       >
         <Locate />
       </Button>
-      <Button
-        size="icon"
-        className="absolute bottom-28 right-5 z-[500] rounded-full"
-        onClick={() =>
-          sendPushNotification({
-            properties: {
-              mag: 5,
-              place: "109 km ESE of Kimbe, Papua New Guinea",
-              time: 1744188276904,
-
-              felt: null,
-
-              alert: null,
-
-              tsunami: 0,
-              sig: 385,
-
-              title: "M 5.0 - 109 km ESE of Kimbe, Papua New Guinea",
-            },
-            geometry: {
-              coordinates: [150.9665, -6.0935, 10],
-            },
-            id: "us6000q4w4",
-          })
-        }
-      >
-        <TestTube />
-      </Button>
       <Popover>
         <PopoverTrigger asChild>
           <Button
