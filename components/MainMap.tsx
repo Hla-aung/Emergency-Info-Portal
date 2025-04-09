@@ -78,9 +78,7 @@ export default function MainMap() {
         registration.active.postMessage({
           type: "PUSH",
           title: "New Earthquake Alert!",
-          body: `${earthquake.properties.title} - Magnitude: ${
-            earthquake.properties.mag
-          } - ${format(earthquake.properties.time, "PPpp")}`,
+          body: `${earthquake.properties.title} - Magnitude: ${earthquake.properties.mag}`,
           url: "/",
         });
       }

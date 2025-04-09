@@ -23,66 +23,6 @@ const serwist = new Serwist({
   runtimeCaching: defaultCache,
 });
 
-// Register background sync
-self.addEventListener("sync", (event) => {
-  if (event.tag === "fetch-earthquakes") {
-    event.waitUntil(fetchEarthquakes());
-  }
-});
-
-// Function to fetch earthquake data
-async function fetchEarthquakes() {
-  try {
-    const response = await fetch(
-      // "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2025-03-01&minlatitude=9&maxlatitude=30&minlongitude=90&maxlongitude=110"
-      "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson"
-    );
-    const data = await response.json();
-
-    // Send message to all clients with new earthquake data
-    const clients = await self.clients.matchAll();
-    clients.forEach((client) => {
-      client.postMessage({
-        type: "EARTHQUAKE_UPDATE",
-        data: data,
-      });
-    });
-
-    // Check for new earthquakes and send notifications
-    const registration = await self.registration;
-    const cache = await caches.open("earthquake-cache");
-    const cachedResponse = await cache.match("earthquakes");
-    let previousQuakes = [];
-
-    if (cachedResponse) {
-      const cachedData = await cachedResponse.json();
-      previousQuakes = cachedData.features || [];
-    }
-
-    const newQuakes = data.features.filter((quake: any) => {
-      return !previousQuakes.some((oldQuake: any) => oldQuake.id === quake.id);
-    });
-
-    // Send notifications for new earthquakes
-    for (const quake of newQuakes.slice(0, 3)) {
-      await registration.showNotification("New Earthquake Alert From SW!", {
-        body: `${quake.properties.title} - Magnitude: ${quake.properties.mag}`,
-        icon: "/icons/icon-192x192.png",
-        badge: "/icons/icon-192x192.png",
-        data: {
-          url: "/",
-          earthquake: quake,
-        },
-      });
-    }
-
-    // Update cache
-    await cache.put("earthquakes", new Response(JSON.stringify(data)));
-  } catch (error) {
-    console.error("Error in background sync:", error);
-  }
-}
-
 // Handle push notifications
 self.addEventListener("push", (event) => {
   if (event.data) {
@@ -95,6 +35,18 @@ self.addEventListener("push", (event) => {
       data: {
         url: data.url || "/",
       },
+      // iOS specific options
+      tag: data.tag || "default-tag",
+      renotify: true,
+      requireInteraction: true,
+      silent: false,
+      // Add actions for iOS
+      actions: [
+        {
+          action: "open",
+          title: "Open",
+        },
+      ],
     };
 
     event.waitUntil(
@@ -109,6 +61,13 @@ self.addEventListener("push", (event) => {
 // Handle notification click
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
+
+  // Handle action buttons for iOS
+  if (event.action === "open") {
+    event.waitUntil(self.clients.openWindow(event.notification.data.url));
+    return;
+  }
+
   event.waitUntil(
     self.clients.matchAll({ type: "window" }).then((clientList) => {
       for (const client of clientList) {
