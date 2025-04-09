@@ -5,12 +5,12 @@ import { useTranslations } from "next-intl";
 
 import dynamic from "next/dynamic";
 
-const EarthquakeMap = dynamic(() => import("../../components/EarthquakeMap"), {
+const MainMap = dynamic(() => import("@/components/MainMap"), {
   ssr: false,
 });
 
 export default function Home() {
   const t = useTranslations("HomePage");
 
-  return <EarthquakeMap />;
+  return <MainMap />;
 }

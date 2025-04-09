@@ -15,12 +15,8 @@ import LoadingScreen from "./common/loading-screen";
 import { Button } from "@/components/ui/button";
 import { Info, Locate } from "lucide-react";
 import { format } from "date-fns";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./ui/tooltip";
+import EarthquakeDrawer from "./earthquake/earthquake-drawer";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 const generateMarkerIcon = ({ color = "#E74C3C" }: { color?: string }) => {
   const iconUrl =
@@ -43,13 +39,21 @@ const generateMarkerIcon = ({ color = "#E74C3C" }: { color?: string }) => {
 
 const generateCircleIcon = ({ magnitude }: { magnitude: number }) => {
   const size = Math.pow(2, magnitude) / 2;
+  const color =
+    magnitude < 2
+      ? "#22c55e"
+      : magnitude < 4
+      ? "#eab308"
+      : magnitude < 6
+      ? "#f97316"
+      : "#ef4444";
   const iconUrl =
     "data:image/svg+xml;charset=UTF-8," +
     encodeURIComponent(`
     <svg width="${size * 2}" height="${size * 2}" viewBox="0 0 ${size * 2} ${
       size * 2
     }" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="${size}" cy="${size}" r="${size}" fill="red" fill-opacity="0.2" stroke="white" stroke-width="0.5"/>
+      <circle cx="${size}" cy="${size}" r="${size}" fill="${color}" fill-opacity="0.5" stroke="white" stroke-width="0.5"/>
     </svg>
   `);
 
@@ -61,19 +65,7 @@ const generateCircleIcon = ({ magnitude }: { magnitude: number }) => {
   });
 };
 
-export interface Earthquake {
-  id: string;
-  properties: {
-    title: string;
-    mag: number;
-    time: number;
-  };
-  geometry: {
-    coordinates: [number, number, number];
-  };
-}
-
-export default function EarthquakeMap() {
+export default function MainMap() {
   const mapRef = useRef<Map>(null);
   const [center, setCenter] = useState<LatLngTuple>([21.975, 96.083]);
   const [earthquakes, setEarthquakes] = useState<Earthquake[]>([]);
@@ -86,7 +78,9 @@ export default function EarthquakeMap() {
         registration.active.postMessage({
           type: "PUSH",
           title: "New Earthquake Alert!",
-          body: `${earthquake.properties.title} - Magnitude: ${earthquake.properties.mag}`,
+          body: `${earthquake.properties.title} - Magnitude: ${
+            earthquake.properties.mag
+          } - ${format(earthquake.properties.time, "PPpp")}`,
           url: "/",
         });
       }
@@ -97,12 +91,12 @@ export default function EarthquakeMap() {
 
   const { data, isPending, isSuccess } = useGetEarthquakes();
 
-  const handleLocate = () => {
+  const handleLocate = ({ maxZoom = 3 }: { maxZoom?: number }) => {
     if (mapRef.current) {
       const map = mapRef.current;
       map.locate({
         setView: true,
-        maxZoom: 16,
+        maxZoom: maxZoom,
       });
 
       map.on("locationfound", (e) => {
@@ -118,7 +112,8 @@ export default function EarthquakeMap() {
           return !previousQuakes.some((oldQuake) => oldQuake.id === quake.id);
         });
 
-        newQuakes.forEach((quake) => {
+        // Send notifications for the last 3 new earthquakes
+        newQuakes.slice(-3).forEach((quake) => {
           sendPushNotification(quake);
         });
       }
@@ -129,7 +124,7 @@ export default function EarthquakeMap() {
   }, [isSuccess, data]);
 
   useEffect(() => {
-    handleLocate();
+    handleLocate({});
   }, [mapRef.current]);
 
   if (isPending) {
@@ -140,7 +135,7 @@ export default function EarthquakeMap() {
     <div className="w-full relative min-h-screen">
       <MapContainer
         center={center}
-        zoom={12}
+        zoom={3}
         style={{ height: "99vh", width: "100%" }}
         ref={mapRef}
         zoomControl={false}
@@ -181,37 +176,52 @@ export default function EarthquakeMap() {
             </Popup>
           </Marker>
         ))}
-        <Button
-          size="icon"
-          className="absolute bottom-5 right-5 z-[500] rounded-full"
-          onClick={handleLocate}
-        >
-          <Locate />
-        </Button>
-        <div className="absolute top-5 right-5 z-[500]">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  className="rounded-full"
-                >
-                  <Info />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="z-[500]" align="end">
-                <div className="space-y-1">
-                  <h1 className="font-semibold">{data?.metadata?.title}</h1>
-                  <p className="text-secondary">
-                    {format(data?.metadata?.generated, "PPpp")}
-                  </p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
       </MapContainer>
+      <EarthquakeDrawer />
+      <Button
+        size="icon"
+        className="absolute bottom-5 right-5 z-[500] rounded-full"
+        onClick={() => handleLocate({ maxZoom: 16 })}
+      >
+        <Locate />
+      </Button>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="absolute top-5 right-5 z-[500] rounded-full"
+          >
+            <Info />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-fit z-[500]">
+          <div className="flex flex-col gap-2 text-sm">
+            <div className="flex items-center gap-2">
+              <span
+                className={`inline-block size-3 rounded-full bg-green-500`}
+              />
+              <p>Magnitude &lt; 2</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span
+                className={`inline-block size-3 rounded-full bg-yellow-500`}
+              />
+              <p>Magnitude &lt; 4</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span
+                className={`inline-block size-3 rounded-full bg-orange-500`}
+              />
+              <p>Magnitude &lt; 6</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`inline-block size-3 rounded-full bg-red-500`} />
+              <p>Magnitude &gt;= 6</p>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

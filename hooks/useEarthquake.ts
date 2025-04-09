@@ -30,7 +30,6 @@ export const useGetEarthquakes = () => {
     queryKey: ["earthquakes"],
     queryFn: async () => {
       const res = await axios.get(
-        // `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2025-03-01&minlatitude=9&maxlatitude=30&minlongitude=90&maxlongitude=110`
         "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson"
       );
       return res.data;

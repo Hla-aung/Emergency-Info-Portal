@@ -56,7 +56,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <html lang={locale}>
-      <body className={cn("w-full min-h-screen", inter.className)}>
+      <body className={cn("w-full min-h-dvh", inter.className)}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
