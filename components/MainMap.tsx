@@ -13,7 +13,7 @@ import L, { LatLngTuple, Map } from "leaflet";
 import { useGetEarthquakes } from "../hooks/useEarthquake";
 import LoadingScreen from "./common/loading-screen";
 import { Button } from "@/components/ui/button";
-import { Info, Locate } from "lucide-react";
+import { Info, Locate, TestTube } from "lucide-react";
 import { format } from "date-fns";
 import EarthquakeDrawer from "./earthquake/earthquake-drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -182,6 +182,34 @@ export default function MainMap() {
         onClick={() => handleLocate({ maxZoom: 16 })}
       >
         <Locate />
+      </Button>
+      <Button
+        size="icon"
+        className="absolute bottom-28 right-5 z-[500] rounded-full"
+        onClick={() =>
+          sendPushNotification({
+            properties: {
+              mag: 5,
+              place: "109 km ESE of Kimbe, Papua New Guinea",
+              time: 1744188276904,
+
+              felt: null,
+
+              alert: null,
+
+              tsunami: 0,
+              sig: 385,
+
+              title: "M 5.0 - 109 km ESE of Kimbe, Papua New Guinea",
+            },
+            geometry: {
+              coordinates: [150.9665, -6.0935, 10],
+            },
+            id: "us6000q4w4",
+          })
+        }
+      >
+        <TestTube />
       </Button>
       <Popover>
         <PopoverTrigger asChild>
