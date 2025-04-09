@@ -64,7 +64,7 @@ async function fetchEarthquakes() {
     });
 
     // Send notifications for new earthquakes
-    for (const quake of newQuakes.slice(-3)) {
+    for (const quake of newQuakes.slice(0, 3)) {
       await registration.showNotification("New Earthquake Alert From SW!", {
         body: `${quake.properties.title} - Magnitude: ${quake.properties.mag}`,
         icon: "/icons/icon-192x192.png",

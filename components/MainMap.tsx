@@ -113,7 +113,7 @@ export default function MainMap() {
         });
 
         // Send notifications for the last 3 new earthquakes
-        newQuakes.slice(-3).forEach((quake) => {
+        newQuakes.slice(0, 3).forEach((quake) => {
           sendPushNotification(quake);
         });
       }
