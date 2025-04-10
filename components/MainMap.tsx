@@ -10,20 +10,23 @@ import {
   ZoomControl,
   GeoJSON,
   useMapEvents,
-  LayersControl,
 } from "react-leaflet";
 import L, { LatLngTuple, Map } from "leaflet";
 import { useGetEarthquakes } from "@/lib/hooks/use-earthquake";
 import LoadingScreen from "./common/loading-screen";
 import { Button } from "@/components/ui/button";
 import { Info, Locate, TestTube } from "lucide-react";
-import { format } from "date-fns";
 import EarthquakeDrawer from "./earthquake/earthquake-drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import ShelterDialog from "./shelter/shelter-dialog";
 import { useTranslations } from "next-intl";
+import ShelterMarkers from "./shelter/shelter-markers";
 
-const generateMarkerIcon = ({ color = "#E74C3C" }: { color?: string }) => {
+export const generateMarkerIcon = ({
+  color = "#E74C3C",
+}: {
+  color?: string;
+}) => {
   const iconUrl =
     "data:image/svg+xml;charset=UTF-8," +
     encodeURIComponent(`
@@ -42,7 +45,7 @@ const generateMarkerIcon = ({ color = "#E74C3C" }: { color?: string }) => {
   });
 };
 
-const generateCircleIcon = ({ magnitude }: { magnitude: number }) => {
+export const generateCircleIcon = ({ magnitude }: { magnitude: number }) => {
   const size = Math.pow(2, magnitude) / 2;
   const color =
     magnitude < 2
@@ -86,7 +89,6 @@ function MapClickHandler({
 export default function MainMap() {
   const mapRef = useRef<Map>(null);
   const [center, setCenter] = useState<LatLngTuple>([21.975, 96.083]);
-  const [earthquakes, setEarthquakes] = useState<Earthquake[]>([]);
   const [previousQuakes, setPreviousQuakes] = useState<Earthquake[]>([]);
   const [clickedPosition, setClickedPosition] = useState<LatLngTuple | null>(
     null
@@ -140,7 +142,6 @@ export default function MainMap() {
       }
 
       setPreviousQuakes(data.features);
-      setEarthquakes(data.features);
     }
   }, [isSuccess, data]);
 
@@ -151,12 +152,6 @@ export default function MainMap() {
   const handleMapClick = (latlng: LatLngTuple) => {
     setClickedPosition(latlng);
     setIsShelterDialogOpen(true);
-  };
-
-  const handleShelterSubmit = async (data: any) => {
-    // TODO: Implement shelter creation
-    console.log("Shelter data:", data);
-    console.log("Position:", clickedPosition);
   };
 
   if (isPending) {
@@ -208,6 +203,7 @@ export default function MainMap() {
             </Popup>
           </Marker>
         )}
+        <ShelterMarkers />
         <Marker
           key={"current-location"}
           position={center}

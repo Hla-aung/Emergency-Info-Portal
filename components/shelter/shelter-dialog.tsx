@@ -31,34 +31,10 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "../ui/scroll-area";
-
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  location: z.string().min(1, "Location is required"),
-  phone: z.string().min(1, "Phone is required"),
-  contactName: z.string().optional(),
-  contactPhone: z.string().optional(),
-  type: z.enum(["temporary", "permanent", "medical", "evacuation"], {
-    required_error: "Shelter type is required",
-  }),
-  capacity: z.coerce.number().min(1, "Capacity must be at least 1"),
-  isAvailable: z.boolean().default(true),
-  isAccessible: z.boolean().optional(),
-  notes: z.string().optional(),
-  resourcesAvailable: z
-    .array(
-      z.enum([
-        "food",
-        "water",
-        "medical",
-        "blankets",
-        "toilets",
-        "internet",
-        "electricity",
-      ])
-    )
-    .optional(),
-});
+import { useCreateShelter } from "@/lib/hooks/use-shelter";
+import { CreateShelterDto } from "@/lib/api/shelter";
+import { ShelterResource, ShelterType } from "@prisma/client";
+import { formSchema } from "@/lib/schemas/shelter";
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -81,10 +57,29 @@ export default function ShelterDialog({
       location: "",
       phone: "",
       capacity: 0,
+      type: "TEMPORARY",
+      isAvailable: true,
     },
   });
 
+  const { mutate: createShelter } = useCreateShelter();
+
   const handleSubmit = (data: FormValues) => {
+    createShelter(
+      {
+        ...data,
+        latitude: position[0],
+        longitude: position[1],
+      } as CreateShelterDto,
+      {
+        onSuccess: (res) => {
+          alert(res);
+        },
+        onError: (error) => {
+          alert(error);
+        },
+      }
+    );
     form.reset();
     onOpenChange(false);
   };
@@ -189,6 +184,7 @@ export default function ShelterDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t("shelter_type")}</FormLabel>
+
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -198,19 +194,23 @@ export default function ShelterDialog({
                           <SelectValue placeholder={t("select_type")} />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="temporary">
-                          {t("temporary")}
-                        </SelectItem>
-                        <SelectItem value="permanent">
-                          {t("permanent")}
-                        </SelectItem>
-                        <SelectItem value="medical">{t("medical")}</SelectItem>
-                        <SelectItem value="evacuation">
-                          {t("evacuation")}
-                        </SelectItem>
+
+                      <SelectContent className="z-[600]">
+                        {(
+                          [
+                            "TEMPORARY",
+                            "PERMANENT",
+                            "MEDICAL",
+                            "EVACUATION",
+                          ] as ShelterType[]
+                        ).map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {t(type)}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
+
                     <FormMessage />
                   </FormItem>
                 )}
@@ -276,14 +276,14 @@ export default function ShelterDialog({
                       <div className="grid grid-cols-2 gap-4">
                         {(
                           [
-                            "food",
-                            "water",
-                            "medical",
-                            "blankets",
-                            "toilets",
-                            "internet",
-                            "electricity",
-                          ] as const
+                            "FOOD",
+                            "WATER",
+                            "MEDICAL",
+                            "BLANKETS",
+                            "TOILETS",
+                            "INTERNET",
+                            "ELECTRICITY",
+                          ] as ShelterResource[]
                         ).map((resource) => (
                           <FormItem
                             key={resource}
