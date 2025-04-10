@@ -3,7 +3,9 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 export const useGetEarthquakes = () => {
-  const [earthquakes, setEarthquakes] = useState<any>(null);
+  const [earthquakes, setEarthquakes] = useState<EarthquakeGeoJSON | null>(
+    null
+  );
 
   useEffect(() => {
     // Register background sync
@@ -26,19 +28,23 @@ export const useGetEarthquakes = () => {
     };
   }, []);
 
-  const query = useQuery({
+  const query = useQuery<EarthquakeGeoJSON>({
     queryKey: ["earthquakes"],
     queryFn: async () => {
-      const res = await axios.get(
+      const res = await axios.get<EarthquakeGeoJSON>(
         "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson"
       );
       return res.data;
     },
     refetchInterval: 1000 * 60 * 1, // 1 minute
+    staleTime: 1000 * 30, // 30 seconds
   });
 
   return {
     ...query,
     data: earthquakes || query.data,
+    significantQuakes: (earthquakes || query.data)?.features.filter(
+      (quake) => quake.properties.mag >= 4.5
+    ),
   };
 };

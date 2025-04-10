@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Activity } from "lucide-react";
 import { format } from "date-fns";
-import { useGetEarthquakes } from "@/hooks/useEarthquake";
+import { useGetEarthquakes } from "@/lib/hooks/use-earthquake";
 import { ScrollArea } from "../ui/scroll-area";
 import EarthquakeDetails from "./earthquake-details";
 
@@ -22,7 +22,7 @@ const EarthquakeDrawer = () => {
       <DrawerTrigger asChild>
         <Button
           size="icon"
-          className="absolute bottom-16 right-5 z-[500] rounded-full"
+          className="absolute bottom-20 right-5 z-[500] rounded-full"
           variant="destructive"
         >
           <Activity className="h-4 w-4" />

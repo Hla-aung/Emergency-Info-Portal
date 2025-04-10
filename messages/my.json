@@ -1,6 +1,6 @@
 {
   "HomePage": {
-    "emergency_portal": "အရေးပေါ်အချက်အလက်ပေါ်တာ",
+    "emergency_portal": "အရေးပေါ်အချက်အလက်",
     "updates": "အချက်အလက်များ",
     "shelters": "ခိုလှုံရာနေရာများ",
     "contacts": "ဆက်သွယ်ရန်",
@@ -13,13 +13,35 @@
     "login": "ဝင်ရန်",
     "logout": "ထွက်ရန်",
     "add_update": "သတင်းထည့်ရန်",
+    "add_shelter": "ခိုလှုံရာထည့်ရန်"
+  },
+  "Shelter": {
     "add_shelter": "ခိုလှုံရာထည့်ရန်",
+    "name": "ခိုလှုံရာအမည်",
     "location": "တည်နေရာ",
     "phone": "ဖုန်း",
     "capacity": "လက်ခံနိုင်မှု",
     "status": "အခြေအနေ",
     "active": "ဖွင့်ထား",
     "inactive": "ပိတ်ထား",
-    "full": "ပြည့်ပြီ"
+    "full": "ပြည့်ပြီ",
+    "contact_name": "ဆက်သွယ်ရန်အမည်",
+    "contact_phone": "ဆက်သွယ်ရန်ဖုန်း",
+    "shelter_type": "ခိုလှုံရာအမျိုးအစား",
+    "select_type": "အမျိုးအစားရွေးရန်",
+    "temporary": "ယာယီ",
+    "permanent": "အမြဲတမ်း",
+    "medical": "ဆေးရုံ",
+    "evacuation": "ရွှေ့ပြောင်းရန်",
+    "is_available": "လက်ရှိရနိုင်သည်",
+    "is_accessible": "သွားလာနိုင်သည်",
+    "notes": "ထပ်ဆောင်းမှတ်ချက်များ",
+    "resources": "ရနိုင်သောအရင်းအမြစ်များ",
+    "food": "အစားအစာ",
+    "water": "ရေ",
+    "blankets": "စောင်များ",
+    "toilets": "အိမ်သာ",
+    "internet": "အင်တာနက်",
+    "electricity": "လျှပ်စစ်"
   }
 }

@@ -13,13 +13,35 @@
     "login": "Login",
     "logout": "Logout",
     "add_update": "Add Update",
+    "add_shelter": "Add Shelter"
+  },
+  "Shelter": {
     "add_shelter": "Add Shelter",
+    "name": "Shelter Name",
     "location": "Location",
     "phone": "Phone",
     "capacity": "Capacity",
     "status": "Status",
     "active": "Active",
     "inactive": "Inactive",
-    "full": "Full"
+    "full": "Full",
+    "contact_name": "Contact Person Name",
+    "contact_phone": "Contact Person Phone",
+    "shelter_type": "Shelter Type",
+    "select_type": "Select Type",
+    "temporary": "Temporary",
+    "permanent": "Permanent",
+    "medical": "Medical",
+    "evacuation": "Evacuation",
+    "is_available": "Currently Available",
+    "is_accessible": "Accessible",
+    "notes": "Additional Notes",
+    "resources": "Available Resources",
+    "food": "Food",
+    "water": "Water",
+    "blankets": "Blankets",
+    "toilets": "Toilets",
+    "internet": "Internet",
+    "electricity": "Electricity"
   }
 }

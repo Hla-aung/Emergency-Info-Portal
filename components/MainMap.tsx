@@ -8,15 +8,20 @@ import {
   Marker,
   Popup,
   ZoomControl,
+  GeoJSON,
+  useMapEvents,
+  LayersControl,
 } from "react-leaflet";
 import L, { LatLngTuple, Map } from "leaflet";
-import { useGetEarthquakes } from "../hooks/useEarthquake";
+import { useGetEarthquakes } from "@/lib/hooks/use-earthquake";
 import LoadingScreen from "./common/loading-screen";
 import { Button } from "@/components/ui/button";
 import { Info, Locate, TestTube } from "lucide-react";
 import { format } from "date-fns";
 import EarthquakeDrawer from "./earthquake/earthquake-drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import ShelterDialog from "./shelter/shelter-dialog";
+import { useTranslations } from "next-intl";
 
 const generateMarkerIcon = ({ color = "#E74C3C" }: { color?: string }) => {
   const iconUrl =
@@ -65,11 +70,29 @@ const generateCircleIcon = ({ magnitude }: { magnitude: number }) => {
   });
 };
 
+function MapClickHandler({
+  onClick,
+}: {
+  onClick: (latlng: LatLngTuple) => void;
+}) {
+  useMapEvents({
+    click: (e) => {
+      onClick([e.latlng.lat, e.latlng.lng]);
+    },
+  });
+  return null;
+}
+
 export default function MainMap() {
   const mapRef = useRef<Map>(null);
   const [center, setCenter] = useState<LatLngTuple>([21.975, 96.083]);
   const [earthquakes, setEarthquakes] = useState<Earthquake[]>([]);
   const [previousQuakes, setPreviousQuakes] = useState<Earthquake[]>([]);
+  const [clickedPosition, setClickedPosition] = useState<LatLngTuple | null>(
+    null
+  );
+  const [isShelterDialogOpen, setIsShelterDialogOpen] = useState(false);
+  const t = useTranslations("HomePage");
 
   const sendPushNotification = async (earthquake: Earthquake) => {
     try {
@@ -125,6 +148,17 @@ export default function MainMap() {
     handleLocate({});
   }, [mapRef.current]);
 
+  const handleMapClick = (latlng: LatLngTuple) => {
+    setClickedPosition(latlng);
+    setIsShelterDialogOpen(true);
+  };
+
+  const handleShelterSubmit = async (data: any) => {
+    // TODO: Implement shelter creation
+    console.log("Shelter data:", data);
+    console.log("Position:", clickedPosition);
+  };
+
   if (isPending) {
     return <LoadingScreen />;
   }
@@ -142,7 +176,38 @@ export default function MainMap() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        <GeoJSON
+          data={data}
+          pointToLayer={(feature, latlng) => {
+            return L.marker(latlng, {
+              icon: generateCircleIcon({ magnitude: feature.properties.mag }),
+            });
+          }}
+          onEachFeature={(feature, layer) => {
+            layer.bindPopup(feature.properties.title);
+          }}
+        />
         <ZoomControl position="bottomleft" />
+        <MapClickHandler onClick={handleMapClick} />
+        {clickedPosition && (
+          <Marker
+            position={clickedPosition}
+            icon={generateMarkerIcon({ color: "#22c55e" })}
+          >
+            <Popup>
+              <div>
+                <h3 className="font-bold">{t("add_shelter")}</h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsShelterDialogOpen(true)}
+                >
+                  {t("add_shelter")}
+                </Button>
+              </div>
+            </Popup>
+          </Marker>
+        )}
         <Marker
           key={"current-location"}
           position={center}
@@ -154,31 +219,11 @@ export default function MainMap() {
             </div>
           </Popup>
         </Marker>
-        {earthquakes?.map((earthquake) => (
-          <Marker
-            key={earthquake.id}
-            position={[
-              earthquake.geometry.coordinates[1],
-              earthquake.geometry.coordinates[0],
-            ]}
-            icon={generateCircleIcon({ magnitude: earthquake.properties.mag })}
-          >
-            <Popup>
-              <div>
-                <h3 className="font-bold">{earthquake.properties.title}</h3>
-                <p>Magnitude: {earthquake.properties.mag}</p>
-                <p>
-                  Time: {new Date(earthquake.properties.time).toLocaleString()}
-                </p>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
       </MapContainer>
       <EarthquakeDrawer />
       <Button
         size="icon"
-        className="absolute bottom-5 right-5 z-[500] rounded-full"
+        className="absolute bottom-10 right-5 z-[500] rounded-full"
         onClick={() => handleLocate({ maxZoom: 16 })}
       >
         <Locate />
@@ -220,6 +265,13 @@ export default function MainMap() {
           </div>
         </PopoverContent>
       </Popover>
+      {clickedPosition && (
+        <ShelterDialog
+          open={isShelterDialogOpen}
+          onOpenChange={setIsShelterDialogOpen}
+          position={clickedPosition}
+        />
+      )}
     </div>
   );
 }
