@@ -43,5 +43,13 @@
     "TOILETS": "အိမ်သာ",
     "INTERNET": "အင်တာနက်",
     "ELECTRICITY": "လျှပ်စစ်"
+  },
+  "Settings": {
+    "settings": "ဆက်တင်များ",
+    "notifications": "သတိပေးချက်များ",
+    "language": "ဘာသာစကား",
+    "enable_noti": "သတိပေးချက်များကိုဖွင့်ရန်",
+    "english": "အင်္ဂလိပ်",
+    "myanmar": "မြန်မာ"
   }
 }

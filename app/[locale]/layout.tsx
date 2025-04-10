@@ -8,6 +8,7 @@ import { getMessages } from "next-intl/server";
 import { Inter } from "next/font/google";
 import "@/app/globals.css";
 import { cn } from "@/lib/utils";
+import MenuBar from "@/components/common/menu-bar";
 
 type Props = {
   children: ReactNode;
@@ -58,7 +59,10 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html lang={locale}>
       <body className={cn("w-full min-h-dvh", inter.className)}>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <Providers>{children}</Providers>
+          <Providers>
+            {children}
+            <MenuBar />
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>

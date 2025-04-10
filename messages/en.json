@@ -43,5 +43,13 @@
     "TOILETS": "Toilets",
     "INTERNET": "Internet",
     "ELECTRICITY": "Electricity"
+  },
+  "Settings": {
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "language": "Language",
+    "enable_noti": "Enable Notifications",
+    "english": "English",
+    "myanmar": "Myanmar"
   }
 }

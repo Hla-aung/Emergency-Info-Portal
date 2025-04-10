@@ -21,6 +21,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import ShelterDialog from "./shelter/shelter-dialog";
 import { useTranslations } from "next-intl";
 import ShelterMarkers from "./shelter/shelter-markers";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const generateMarkerIcon = ({
   color = "#E74C3C",
@@ -88,6 +89,7 @@ function MapClickHandler({
 
 export default function MainMap() {
   const mapRef = useRef<Map>(null);
+  const isMobile = useIsMobile();
   const [center, setCenter] = useState<LatLngTuple>([21.975, 96.083]);
   const [previousQuakes, setPreviousQuakes] = useState<Earthquake[]>([]);
   const [clickedPosition, setClickedPosition] = useState<LatLngTuple | null>(
@@ -159,11 +161,14 @@ export default function MainMap() {
   }
 
   return (
-    <div className="w-full relative min-h-screen">
+    <div className="w-full relative min-h-dvh">
       <MapContainer
         center={center}
         zoom={3}
-        style={{ height: "99vh", width: "100%" }}
+        style={{
+          height: "100dvh",
+          width: "100%",
+        }}
         ref={mapRef}
         zoomControl={false}
       >
@@ -182,7 +187,7 @@ export default function MainMap() {
             layer.bindPopup(feature.properties.title);
           }}
         />
-        <ZoomControl position="bottomleft" />
+        <ZoomControl position="topleft" />
         <MapClickHandler onClick={handleMapClick} />
         {clickedPosition && (
           <Marker
