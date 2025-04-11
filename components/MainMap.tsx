@@ -89,7 +89,6 @@ function MapClickHandler({
 
 export default function MainMap() {
   const mapRef = useRef<Map>(null);
-  const isMobile = useIsMobile();
   const [center, setCenter] = useState<LatLngTuple>([21.975, 96.083]);
   const [previousQuakes, setPreviousQuakes] = useState<Earthquake[]>([]);
   const [clickedPosition, setClickedPosition] = useState<LatLngTuple | null>(
@@ -98,21 +97,21 @@ export default function MainMap() {
   const [isShelterDialogOpen, setIsShelterDialogOpen] = useState(false);
   const t = useTranslations("HomePage");
 
-  const sendPushNotification = async (earthquake: Earthquake) => {
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      if (registration.active) {
-        registration.active.postMessage({
-          type: "PUSH",
-          title: "New Earthquake Alert!",
-          body: `${earthquake.properties.title} - Magnitude: ${earthquake.properties.mag}`,
-          url: "/",
-        });
-      }
-    } catch (error) {
-      console.error("Error sending push notification:", error);
-    }
-  };
+  // const sendPushNotification = async (earthquake: Earthquake) => {
+  //   try {
+  //     const registration = await navigator.serviceWorker.ready;
+  //     if (registration.active) {
+  //       registration.active.postMessage({
+  //         type: "PUSH",
+  //         title: "New Earthquake Alert!",
+  //         body: `${earthquake.properties.title} - Magnitude: ${earthquake.properties.mag}`,
+  //         url: "/",
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Error sending push notification:", error);
+  //   }
+  // };
 
   const { data, isPending, isSuccess } = useGetEarthquakes();
 
@@ -130,22 +129,22 @@ export default function MainMap() {
     }
   };
 
-  useEffect(() => {
-    if (isSuccess) {
-      if (previousQuakes.length > 0) {
-        const newQuakes = data.features.filter((quake) => {
-          return !previousQuakes.some((oldQuake) => oldQuake.id === quake.id);
-        });
+  // useEffect(() => {
+  //   if (isSuccess) {
+  //     if (previousQuakes.length > 0) {
+  //       const newQuakes = data.features.filter((quake) => {
+  //         return !previousQuakes.some((oldQuake) => oldQuake.id === quake.id);
+  //       });
 
-        // Send notifications for the last 3 new earthquakes
-        newQuakes.slice(0, 3).forEach((quake) => {
-          sendPushNotification(quake);
-        });
-      }
+  //       // Send notifications for the last 3 new earthquakes
+  //       newQuakes.slice(0, 3).forEach((quake) => {
+  //         sendPushNotification(quake);
+  //       });
+  //     }
 
-      setPreviousQuakes(data.features);
-    }
-  }, [isSuccess, data]);
+  //     setPreviousQuakes(data.features);
+  //   }
+  // }, [isSuccess, data]);
 
   useEffect(() => {
     handleLocate({});

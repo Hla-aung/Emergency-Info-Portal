@@ -43,8 +43,5 @@ export const useGetEarthquakes = () => {
   return {
     ...query,
     data: earthquakes || query.data,
-    significantQuakes: (earthquakes || query.data)?.features.filter(
-      (quake) => quake.properties.mag >= 4.5
-    ),
   };
 };

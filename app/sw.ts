@@ -11,6 +11,11 @@ declare global {
     __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
     clients: Clients;
   }
+  interface NotificationOptions {
+    actions?: Array<{ action: string; title: string }>;
+    vibrate?: number[];
+    renotify?: boolean;
+  }
 }
 
 declare const self: ServiceWorkerGlobalScope;
@@ -59,11 +64,18 @@ async function fetchEarthquakeData() {
         icon: "/icons/icon-192x192.png",
         badge: "/icons/icon-192x192.png",
         data: {
-          url: "/earthquakes",
+          url: "/",
           quakeId: latestQuake.id,
         },
         tag: "earthquake-alert",
-        requireInteraction: true,
+        actions: [
+          {
+            action: "view",
+            title: "View",
+          },
+        ],
+        vibrate: [200, 100, 200, 100, 200, 100, 200],
+        renotify: true,
       });
     }
   } catch (error) {
@@ -75,41 +87,27 @@ async function fetchEarthquakeData() {
 self.addEventListener("push", (event) => {
   if (event.data) {
     const data = event.data.json();
+    event.waitUntil(
+      self.registration.showNotification(data.title || "New Notification", {
+        body: data.body || "You have a new notification",
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
 
-    // If it's an earthquake notification, use custom format
-    if (data.type === "earthquake") {
-      event.waitUntil(
-        self.registration.showNotification("Earthquake Alert", {
-          body: data.message,
-          icon: "/icons/icon-192x192.png",
-          badge: "/icons/icon-192x192.png",
+        data: {
+          url: data.url || "/",
+        },
+        tag: data.tag || "default-tag",
 
-          data: {
-            url: data.url || "/earthquakes",
-            quakeId: data.quakeId,
+        actions: [
+          {
+            action: "view",
+            title: "View",
           },
-          tag: "earthquake-alert",
-
-          requireInteraction: true,
-        })
-      );
-    } else {
-      // Handle other types of notifications
-      event.waitUntil(
-        self.registration.showNotification(data.title || "New Notification", {
-          body: data.body || "You have a new notification",
-          icon: "/icons/icon-192x192.png",
-          badge: "/icons/icon-192x192.png",
-
-          data: {
-            url: data.url || "/",
-          },
-          tag: data.tag || "default-tag",
-
-          requireInteraction: true,
-        })
-      );
-    }
+        ],
+        vibrate: [200, 100, 200, 100, 200, 100, 200],
+        renotify: true,
+      })
+    );
   }
 });
 
@@ -122,7 +120,10 @@ self.addEventListener("notificationclick", (event) => {
     event.waitUntil(
       self.clients.matchAll({ type: "window" }).then((clientList) => {
         for (const client of clientList) {
-          if (client.url === url && "focus" in client) {
+          if (
+            (client.url === "/en" + url || client.url === "/my" + url) &&
+            "focus" in client
+          ) {
             return client.focus();
           }
         }

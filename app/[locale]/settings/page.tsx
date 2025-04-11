@@ -139,7 +139,7 @@ export default function Settings() {
         <h1 className="text-3xl font-bold">{t("settings")}</h1>
       </div>
 
-      <div className="grid gap-6 w-full">
+      <div className="grid gap-6 md:grid-cols-2 w-full">
         <Card>
           <CardHeader className="flex flex-row items-center gap-4 space-y-0">
             <Bell className="h-5 w-5" />
