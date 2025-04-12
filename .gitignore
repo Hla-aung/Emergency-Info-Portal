@@ -3,10 +3,6 @@ node_modules
 .env
 .next
 
-pnpm-lock.yaml
-pnpm-workspace.yaml
-package-lock.json
-
 # Serwist
 public/sw*
 public/swe-worker*
