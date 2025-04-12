@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { ApiManager } from "@/lib/api/axios";
 import { Bell, Globe } from "lucide-react";
 import { Locale, useLocale, useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
@@ -114,6 +115,39 @@ export default function Settings() {
     setIsSubscribed(false);
   };
 
+  const sendNotificationButtonOnClick: MouseEventHandler<
+    HTMLButtonElement
+  > = async (event) => {
+    event.preventDefault();
+
+    if (!subscription) {
+      alert("Web push not subscribed");
+      return;
+    }
+
+    try {
+      await ApiManager.post("/notification", JSON.stringify({ subscription }));
+    } catch (err) {
+      if (err instanceof Error) {
+        if (err.name === "TimeoutError") {
+          console.error("Timeout: It took too long to get the result.");
+        } else if (err.name === "AbortError") {
+          console.error(
+            "Fetch aborted by user action (browser stop button, closing tab, etc.)"
+          );
+        } else if (err.name === "TypeError") {
+          console.error("The AbortSignal.timeout() method is not supported.");
+        } else {
+          // A network error, or some other problem.
+          console.error(`Error: type: ${err.name}, message: ${err.message}`);
+        }
+      } else {
+        console.error(err);
+      }
+      alert("An error happened.");
+    }
+  };
+
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const pathname = usePathname();
@@ -154,6 +188,7 @@ export default function Settings() {
             >
               {t("enable_noti")}
             </Button>
+            <Button onClick={sendNotificationButtonOnClick}>Send Noti</Button>
           </CardContent>
         </Card>
 
