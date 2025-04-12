@@ -56,4 +56,14 @@ model Shelter {
   @@index([latitude, longitude])
 }
 
+model PushSubscription {
+  id            String   @id @default(uuid())
+  endpoint      String   @unique
+  p256dh        String
+  auth          String
+  userId        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 

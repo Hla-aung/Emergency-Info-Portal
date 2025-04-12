@@ -5,6 +5,7 @@ import {
   UpdateShelterDto,
   SearchSheltersQuery,
 } from "@/lib/api/shelter";
+import { Shelter } from "@prisma/client";
 
 export const useShelters = (query?: SearchSheltersQuery) => {
   return useQuery({
@@ -29,6 +30,12 @@ export const useCreateShelter = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shelters"] });
     },
+    onMutate: (data) => {
+      queryClient.cancelQueries({ queryKey: ["shelters"] });
+      queryClient.setQueryData(["shelters"], (oldData: Shelter[]) => {
+        return [...oldData, data];
+      });
+    },
   });
 };
 
@@ -52,6 +59,12 @@ export const useDeleteShelter = () => {
     mutationFn: (id: string) => shelterApi.deleteShelter(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shelters"] });
+    },
+    onMutate: (id) => {
+      queryClient.cancelQueries({ queryKey: ["shelters"] });
+      queryClient.setQueryData(["shelters"], (oldData: Shelter[]) => {
+        return oldData.filter((shelter) => shelter.id !== id);
+      });
     },
   });
 };

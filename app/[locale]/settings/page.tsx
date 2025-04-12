@@ -18,7 +18,12 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ApiManager } from "@/lib/api/axios";
-import { Bell, Globe } from "lucide-react";
+import {
+  useCreatePushSubscription,
+  useDeletePushSubscription,
+  usePushSubscriptions,
+} from "@/lib/hooks/use-push-subscriptions";
+import { Bell, Globe, Loader2 } from "lucide-react";
 import { Locale, useLocale, useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import type { MouseEventHandler } from "react";
@@ -32,6 +37,17 @@ export default function Settings() {
   );
   const [registration, setRegistration] =
     useState<ServiceWorkerRegistration | null>(null);
+
+  usePushSubscriptions();
+
+  const {
+    mutate: createPushSubscription,
+    isPending: isCreatingPushSubscription,
+  } = useCreatePushSubscription();
+  const {
+    mutate: deletePushSubscription,
+    isPending: isDeletingPushSubscription,
+  } = useDeletePushSubscription();
 
   useEffect(() => {
     if (
@@ -82,11 +98,30 @@ export default function Settings() {
       applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
     });
 
+    // Save subscription to database
+    createPushSubscription({
+      endpoint: sub.endpoint,
+      keys: {
+        p256dh: btoa(
+          String.fromCharCode.apply(
+            null,
+            Array.from(new Uint8Array(sub.getKey("p256dh")))
+          )
+        ),
+        auth: btoa(
+          String.fromCharCode.apply(
+            null,
+            Array.from(new Uint8Array(sub.getKey("auth")))
+          )
+        ),
+      },
+    });
+
     // For iOS, we need to ensure the service worker is active
     if (registration.active) {
       registration.active.postMessage({
         type: "PUSH_SUBSCRIPTION",
-        subscription: subscription.toJSON(),
+        subscription: sub.toJSON(),
       });
     }
 
@@ -104,13 +139,17 @@ export default function Settings() {
     event.preventDefault();
     await subscription.unsubscribe();
 
+    deletePushSubscription({
+      endpoint: subscription.endpoint,
+    });
+
     // Notify service worker about unsubscription
     if (registration.active) {
       registration.active.postMessage({
         type: "PUSH_UNSUBSCRIBE",
       });
     }
-    // TODO: you should call your API to delete or invalidate subscription data on the server
+
     setSubscription(null);
     setIsSubscribed(false);
   };
@@ -181,14 +220,31 @@ export default function Settings() {
             <CardTitle>{t("notifications")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <Button
-              className="w-full"
-              disabled={isSubscribed}
-              onClick={subscribeButtonOnClick}
-            >
-              {t("enable_noti")}
-            </Button>
-            <Button onClick={sendNotificationButtonOnClick}>Send Noti</Button>
+            {isSubscribed ? (
+              <Button onClick={unsubscribeButtonOnClick}>
+                {isDeletingPushSubscription ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  t("disable_noti")
+                )}
+              </Button>
+            ) : (
+              <Button onClick={subscribeButtonOnClick}>
+                {isCreatingPushSubscription ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  t("enable_noti")
+                )}
+              </Button>
+            )}
+            {isSubscribed && (
+              <Button
+                onClick={sendNotificationButtonOnClick}
+                className="w-full mt-3"
+              >
+                Send Noti Test
+              </Button>
+            )}
           </CardContent>
         </Card>
 

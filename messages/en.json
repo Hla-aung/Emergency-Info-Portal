@@ -49,6 +49,7 @@
     "notifications": "Notifications",
     "language": "Language",
     "enable_noti": "Enable Notifications",
+    "disable_noti": "Disable Notifications",
     "english": "English",
     "myanmar": "Myanmar"
   }
