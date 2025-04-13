@@ -12,7 +12,5 @@ const MainMap = dynamic(() => import("@/components/MainMap"), {
 });
 
 export default function Home() {
-  const t = useTranslations("HomePage");
-
   return <MainMap />;
 }

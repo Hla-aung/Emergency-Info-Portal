@@ -66,4 +66,11 @@ model PushSubscription {
   updatedAt     DateTime @updatedAt
 }
 
+model EarthquakeAlert {
+  id            String   @id @default(uuid())
+  lastEarthquakeId String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 

@@ -221,7 +221,7 @@ export default function Settings() {
           </CardHeader>
           <CardContent>
             {isSubscribed ? (
-              <Button onClick={unsubscribeButtonOnClick}>
+              <Button onClick={unsubscribeButtonOnClick} className="w-full">
                 {isDeletingPushSubscription ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -229,20 +229,12 @@ export default function Settings() {
                 )}
               </Button>
             ) : (
-              <Button onClick={subscribeButtonOnClick}>
+              <Button onClick={subscribeButtonOnClick} className="w-full">
                 {isCreatingPushSubscription ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   t("enable_noti")
                 )}
-              </Button>
-            )}
-            {isSubscribed && (
-              <Button
-                onClick={sendNotificationButtonOnClick}
-                className="w-full mt-3"
-              >
-                Send Noti Test
               </Button>
             )}
           </CardContent>

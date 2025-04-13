@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import webpush from "web-push";
-import { getAllSubscriptionsFromDB } from "@/lib/db";
-
-let lastEarthquakeId: string | null = null;
+import {
+  getAllSubscriptionsFromDB,
+  getLastEarthquakeId,
+  updateLastEarthquakeId,
+} from "@/lib/db";
 
 export async function POST() {
   try {
@@ -12,16 +14,23 @@ export async function POST() {
     const json = await r.json();
 
     const latest = json.features?.[0];
-    if (!latest || latest.id === lastEarthquakeId) {
+    const lastId = await getLastEarthquakeId();
+
+    if (!latest || latest.id === lastId) {
       return NextResponse.json({ message: "No new earthquakes" });
     }
 
-    lastEarthquakeId = latest.id;
+    await updateLastEarthquakeId(latest.id);
 
     const title = "🌍 Earthquake Alert";
     const body = `Magnitude ${latest.properties.mag} earthquake detected near ${latest.properties.place}`;
 
-    const payload = JSON.stringify({ title, body, tag: "earthquake-alert" });
+    const payload = JSON.stringify({
+      title,
+      body,
+      tag: "earthquake-alert",
+      url: "/",
+    });
 
     // Set VAPID keys
     webpush.setVapidDetails(

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import {
   MapContainer,
@@ -8,8 +8,8 @@ import {
   Marker,
   Popup,
   ZoomControl,
-  GeoJSON,
   useMapEvents,
+  GeoJSON,
 } from "react-leaflet";
 import L, { LatLngTuple, Map } from "leaflet";
 import { useGetEarthquakes } from "@/lib/hooks/use-earthquake";
@@ -21,7 +21,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import ShelterDialog from "./shelter/shelter-dialog";
 import { useTranslations } from "next-intl";
 import ShelterMarkers from "./shelter/shelter-markers";
-import { useIsMobile } from "@/hooks/use-mobile";
+import plateBoundaries from "@/data/plate_boundaries.json";
 
 export const generateMarkerIcon = ({
   color = "#E74C3C",
@@ -74,44 +74,27 @@ export const generateCircleIcon = ({ magnitude }: { magnitude: number }) => {
   });
 };
 
-function MapClickHandler({
+const MapClickHandler = ({
   onClick,
 }: {
   onClick: (latlng: LatLngTuple) => void;
-}) {
+}) => {
   useMapEvents({
     click: (e) => {
       onClick([e.latlng.lat, e.latlng.lng]);
     },
   });
   return null;
-}
+};
 
 export default function MainMap() {
   const mapRef = useRef<Map>(null);
   const [center, setCenter] = useState<LatLngTuple>([21.975, 96.083]);
-  const [previousQuakes, setPreviousQuakes] = useState<Earthquake[]>([]);
   const [clickedPosition, setClickedPosition] = useState<LatLngTuple | null>(
     null
   );
   const [isShelterDialogOpen, setIsShelterDialogOpen] = useState(false);
   const t = useTranslations("HomePage");
-
-  // const sendPushNotification = async (earthquake: Earthquake) => {
-  //   try {
-  //     const registration = await navigator.serviceWorker.ready;
-  //     if (registration.active) {
-  //       registration.active.postMessage({
-  //         type: "PUSH",
-  //         title: "New Earthquake Alert!",
-  //         body: `${earthquake.properties.title} - Magnitude: ${earthquake.properties.mag}`,
-  //         url: "/",
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error("Error sending push notification:", error);
-  //   }
-  // };
 
   const { data, isPending, isSuccess } = useGetEarthquakes();
 
@@ -128,23 +111,6 @@ export default function MainMap() {
       });
     }
   };
-
-  // useEffect(() => {
-  //   if (isSuccess) {
-  //     if (previousQuakes.length > 0) {
-  //       const newQuakes = data.features.filter((quake) => {
-  //         return !previousQuakes.some((oldQuake) => oldQuake.id === quake.id);
-  //       });
-
-  //       // Send notifications for the last 3 new earthquakes
-  //       newQuakes.slice(0, 3).forEach((quake) => {
-  //         sendPushNotification(quake);
-  //       });
-  //     }
-
-  //     setPreviousQuakes(data.features);
-  //   }
-  // }, [isSuccess, data]);
 
   useEffect(() => {
     handleLocate({});
@@ -185,6 +151,16 @@ export default function MainMap() {
           onEachFeature={(feature, layer) => {
             layer.bindPopup(feature.properties.title);
           }}
+        />
+        <GeoJSON
+          data={plateBoundaries as GeoJSON.GeoJsonObject}
+          attribution="Plate Boundaries"
+          style={{
+            color: "red",
+            weight: 1,
+            opacity: 0.5,
+          }}
+          interactive={false}
         />
         <ZoomControl position="topleft" />
         <MapClickHandler onClick={handleMapClick} />
