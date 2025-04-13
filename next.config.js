@@ -28,6 +28,7 @@ module.exports = async (phase) => {
     const withSerwist = (await import("@serwist/next")).default({
       swSrc: "app/sw.ts",
       swDest: "public/sw.js",
+      cacheOnNavigation: true,
     });
     return withNextIntl(withSerwist(nextConfig));
   }
