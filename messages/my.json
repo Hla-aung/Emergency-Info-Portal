@@ -17,6 +17,9 @@
   },
   "Shelter": {
     "add_shelter": "ခိုလှုံရာထည့်ရန်",
+    "edit_shelter": "ခိုလှုံရာပြင်ရန်",
+    "delete_shelter": "ခိုလှုံရာဖျက်ရန်",
+    "delete_shelter_confirmation": "ခိုလှုံရာကိုဖျက်ရန်သေချာပါသလား?",
     "name": "ခိုလှုံရာအမည်",
     "location": "တည်နေရာ",
     "phone": "ဖုန်း",
@@ -42,7 +45,9 @@
     "BLANKETS": "စောင်များ",
     "TOILETS": "အိမ်သာ",
     "INTERNET": "အင်တာနက်",
-    "ELECTRICITY": "လျှပ်စစ်"
+    "ELECTRICITY": "လျှပ်စစ်",
+    "delete": "ဖျက်မည်",
+    "edit": "ပြင်မည်"
   },
   "Settings": {
     "settings": "ဆက်တင်များ",

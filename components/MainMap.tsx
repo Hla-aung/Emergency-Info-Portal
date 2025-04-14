@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import {
   MapContainer,
@@ -12,7 +12,7 @@ import {
   GeoJSON,
 } from "react-leaflet";
 import L, { LatLngTuple, Map } from "leaflet";
-import { useGetEarthquakes } from "@/lib/hooks/use-earthquake";
+import { useGetEarthquakes } from "@/lib/query/use-earthquake";
 import LoadingScreen from "./common/loading-screen";
 import { Button } from "@/components/ui/button";
 import { Info, Locate, TestTube } from "lucide-react";

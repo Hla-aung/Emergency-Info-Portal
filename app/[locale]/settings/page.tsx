@@ -22,7 +22,7 @@ import {
   useCreatePushSubscription,
   useDeletePushSubscription,
   usePushSubscriptions,
-} from "@/lib/hooks/use-push-subscriptions";
+} from "@/lib/query/use-push-subscriptions";
 import { Bell, Globe, Loader2 } from "lucide-react";
 import { Locale, useLocale, useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
@@ -37,8 +37,6 @@ export default function Settings() {
   );
   const [registration, setRegistration] =
     useState<ServiceWorkerRegistration | null>(null);
-
-  usePushSubscriptions();
 
   const {
     mutate: createPushSubscription,

@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Activity } from "lucide-react";
 import { format } from "date-fns";
-import { useGetEarthquakes } from "@/lib/hooks/use-earthquake";
+import { useGetEarthquakes } from "@/lib/query/use-earthquake";
 import { ScrollArea } from "../ui/scroll-area";
 import EarthquakeDetails from "./earthquake-details";
 

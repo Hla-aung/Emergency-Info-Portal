@@ -1,8 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +17,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 import {
   Select,
@@ -31,81 +28,74 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "../ui/scroll-area";
-import { useCreateShelter } from "@/lib/query/use-shelter";
-import { CreateShelterDto } from "@/lib/api/shelter";
+import { useUpdateShelter } from "@/lib/query/use-shelter";
+import { UpdateShelterDto } from "@/lib/api/shelter";
 import { ShelterResource, ShelterType } from "@prisma/client";
 import { formSchema } from "@/lib/schemas/shelter";
-import { useReverseGeocoding } from "@/lib/query/use-nominatim";
-import React, { useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Loader2, Pencil } from "lucide-react";
+import { useState } from "react";
+import { Shelter } from "@prisma/client";
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface ShelterDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  position: L.LatLngTuple;
+interface ShelterEditDialogProps {
+  shelter: Shelter;
 }
 
-export default function ShelterDialog({
-  open,
-  onOpenChange,
-  position,
-}: ShelterDialogProps) {
+export default function ShelterEditDialog({ shelter }: ShelterEditDialogProps) {
   const t = useTranslations("Shelter");
+  const [isOpen, setIsOpen] = useState(false);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      location: "",
-      phone: "",
-      capacity: 0,
-      type: "TEMPORARY",
-      isAvailable: true,
+      name: shelter.name,
+      location: shelter.location,
+      phone: shelter.phone,
+      capacity: shelter.capacity,
+      type: shelter.type,
+      isAvailable: shelter.isAvailable,
+      contactName: shelter.contactName || "",
+      contactPhone: shelter.contactPhone || "",
+      notes: shelter.notes || "",
+      resourcesAvailable: shelter.resourcesAvailable || [],
     },
   });
 
-  const { data: reverseGeocoding } = useReverseGeocoding(
-    position[0],
-    position[1]
-  );
+  const { mutate: updateShelter, isPending } = useUpdateShelter();
 
-  const { mutate: createShelter, isPending } = useCreateShelter();
-
-  // Update location field when reverse geocoding data is available
-  useEffect(() => {
-    if (reverseGeocoding?.display_name) {
-      form.setValue("location", reverseGeocoding.display_name);
-    }
-  }, [reverseGeocoding, form]);
-
-  const handleSubmit = (data: FormValues) => {
-    createShelter(
+  const handleUpdate = (data: FormValues) => {
+    updateShelter(
+      { id: shelter.id, data: data as UpdateShelterDto },
       {
-        ...data,
-        latitude: Number(reverseGeocoding?.lat) || position[0],
-        longitude: Number(reverseGeocoding?.lon) || position[1],
-      } as CreateShelterDto,
-      {
+        onSuccess: () => {
+          setIsOpen(false);
+        },
         onError: (error) => {
           alert(error);
         },
       }
     );
-    form.reset();
-    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="icon" className="w-7 h-7">
+          <Pencil className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
       <DialogContent className="z-[500]">
         <DialogHeader>
-          <DialogTitle>{t("add_shelter")}</DialogTitle>
+          <DialogTitle>{t("edit_shelter")}</DialogTitle>
         </DialogHeader>
         <ScrollArea className="h-[70vh]">
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(handleSubmit)}
+              onSubmit={form.handleSubmit(handleUpdate)}
               className="space-y-4 pl-1 pr-2"
             >
               <FormField
@@ -196,7 +186,6 @@ export default function ShelterDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t("shelter_type")}</FormLabel>
-
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -206,7 +195,6 @@ export default function ShelterDialog({
                           <SelectValue placeholder={t("select_type")} />
                         </SelectTrigger>
                       </FormControl>
-
                       <SelectContent className="z-[600]">
                         {(
                           [
@@ -222,7 +210,6 @@ export default function ShelterDialog({
                         ))}
                       </SelectContent>
                     </Select>
-
                     <FormMessage />
                   </FormItem>
                 )}
@@ -240,23 +227,6 @@ export default function ShelterDialog({
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel>{t("is_available")}</FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="isAccessible"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>{t("is_accessible")}</FormLabel>
                     </div>
                   </FormItem>
                 )}
@@ -331,7 +301,7 @@ export default function ShelterDialog({
                 {isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  t("add_shelter")
+                  t("edit_shelter")
                 )}
               </Button>
             </form>
