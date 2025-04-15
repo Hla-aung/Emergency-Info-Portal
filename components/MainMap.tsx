@@ -171,7 +171,7 @@ export default function MainMap() {
           >
             <Popup>
               <div>
-                <h3 className="font-bold">{t("add_shelter")}</h3>
+                <h3 className="font-bold mb-3">{t("add_shelter")}</h3>
                 <Button
                   variant="outline"
                   size="sm"
