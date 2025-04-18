@@ -1,6 +1,6 @@
 # Emergency Portal
 
-A Progressive Web App (PWA) built with **Next.js**, **Tailwind CSS**, **Supabase**, and **Leaflet** to help users find and share critical shelter information during emergencies in Myanmar.
+A Progressive Web App (PWA) built with **Next.js**, **Tailwind CSS**, **Supabase**, and **Leaflet** to help users find and share critical shelter information during emergencies.
 
 > 🌍 Available in English and Burmese | 🗺️ Map-based shelter submission and lookup | 🔔 Real-time notifications with alerts
 

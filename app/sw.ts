@@ -38,6 +38,43 @@ const serwist = new Serwist({
   },
 });
 
+const resubscribeToPush = async () => {
+  const sub = await self.registration.pushManager.getSubscription();
+  if (sub) {
+    await sub.unsubscribe();
+    await fetch("/api/push-subscriptions", {
+      method: "DELETE",
+      body: JSON.stringify({
+        endpoint: sub.endpoint,
+      }),
+    });
+  }
+  const newSub = await self.registration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+  });
+  await fetch("/api/push-subscriptions", {
+    method: "POST",
+    body: JSON.stringify({
+      endpoint: newSub.endpoint,
+      keys: {
+        p256dh: btoa(
+          String.fromCharCode.apply(
+            null,
+            Array.from(new Uint8Array(newSub.getKey("p256dh")))
+          )
+        ),
+        auth: btoa(
+          String.fromCharCode.apply(
+            null,
+            Array.from(new Uint8Array(newSub.getKey("auth")))
+          )
+        ),
+      },
+    }),
+  });
+};
+
 // Handle push notifications
 self.addEventListener("push", (event) => {
   if (event.data) {
@@ -45,9 +82,8 @@ self.addEventListener("push", (event) => {
     event.waitUntil(
       self.registration.showNotification(data.title || "New Notification", {
         body: data.body || "You have a new notification",
-        icon: "/icons/icon-192x192.png",
-        badge: "/icons/icon-192x192.png",
-
+        icon: "/android-chrome-192x192.png",
+        badge: "/android-chrome-192x192.png",
         data: {
           url: self.location.href.includes("/my")
             ? "/my" + data.url
@@ -64,6 +100,8 @@ self.addEventListener("push", (event) => {
         renotify: true,
       })
     );
+
+    event.waitUntil(resubscribeToPush());
   }
 });
 

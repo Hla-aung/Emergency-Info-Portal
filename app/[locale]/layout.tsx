@@ -16,7 +16,7 @@ type Props = {
 };
 
 const APP_NAME = "Emergency Info Portal";
-const APP_DESCRIPTION = "Emergency information and shelter locator for Myanmar";
+const APP_DESCRIPTION = "Emergency information and shelter locator";
 
 export const metadata: Metadata = {
   applicationName: APP_NAME,
