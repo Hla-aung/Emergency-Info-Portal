@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useOrganizationContext } from "@/context/organization-context";
 import { PushSubscriptionContext } from "@/context/push-subscription-context";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import {
@@ -37,6 +38,8 @@ export default function Settings() {
     registration,
     setRegistration,
   } = context;
+
+  const { currentOrganization } = useOrganizationContext();
 
   const {
     mutate: createPushSubscription,
@@ -200,6 +203,25 @@ export default function Settings() {
                 <SelectItem value="my">{t("myanmar")}</SelectItem>
               </SelectContent>
             </Select>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center gap-4 space-y-0">
+            <Bell className="h-5 w-5" />
+
+            <CardTitle>{t("organization")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => {
+                router.push("/organization-setup");
+              }}
+              className="w-full"
+              disabled={!!currentOrganization}
+            >
+              {t("create_organization")}
+            </Button>
           </CardContent>
         </Card>
       </div>

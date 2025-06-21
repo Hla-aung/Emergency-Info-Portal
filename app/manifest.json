@@ -7,13 +7,19 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#3b82f6",
+  "categories": ["weather", "disaster", "emergency"],
+  "lang": "en",
+  "orientation": "natural",
+  "dir": "ltr",
   "icons": [
     {
+      "purpose": "any",
       "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
+      "purpose": "any",
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
@@ -22,6 +28,12 @@
       "purpose": "maskable",
       "sizes": "512x512",
       "src": "/maskable_icon_x512.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "monochrome",
+      "sizes": "512x512",
+      "src": "/monochrome_iconx512.png",
       "type": "image/png"
     }
   ],
@@ -39,6 +51,23 @@
       "sizes": "320x700",
       "form_factor": "narrow",
       "label": "Settings"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Home Page",
+      "url": "/",
+      "description": "Go to the home page"
+    },
+    {
+      "name": "Settings",
+      "url": "/settings",
+      "description": "Go to the settings page"
+    },
+    {
+      "name": "Search",
+      "url": "/search",
+      "description": "Search for information"
     }
   ]
 }

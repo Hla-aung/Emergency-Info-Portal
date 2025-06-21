@@ -1,8 +1,10 @@
 "use client";
 
 import { PushSubscriptionProvider } from "@/context/push-subscription-context";
+import { OrganizationProvider } from "@/context/organization-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import { KindeProvider } from "@kinde-oss/kinde-auth-nextjs";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -18,8 +20,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <PushSubscriptionProvider>{children}</PushSubscriptionProvider>
-    </QueryClientProvider>
+    <KindeProvider>
+      <QueryClientProvider client={queryClient}>
+        <OrganizationProvider>
+          <PushSubscriptionProvider>{children}</PushSubscriptionProvider>
+        </OrganizationProvider>
+      </QueryClientProvider>
+    </KindeProvider>
   );
 }
