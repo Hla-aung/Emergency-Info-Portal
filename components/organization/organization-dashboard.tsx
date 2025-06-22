@@ -43,7 +43,7 @@ export function OrganizationDashboard({
   const t = useTranslations("Dashboard");
   const { data, isLoading, error, isFetched } =
     useOrganizationDashboard(organizationId);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("shelters");
   const [members, setMembers] = useState<OrganizationMember[]>([]);
 
   // Real-time functionality
@@ -127,9 +127,6 @@ export function OrganizationDashboard({
             {userRole === "MEMBER" && <User className="h-3 w-3 mr-1" />}
             {t(userRole.toLowerCase())}
           </Badge>
-          <Badge variant="outline">
-            {isConnected ? t("realtimeConnected") : t("realtimeDisconnected")}
-          </Badge>
         </div>
       </div>
 
@@ -142,17 +139,17 @@ export function OrganizationDashboard({
         onValueChange={setActiveTab}
         className="space-y-4"
       >
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview">{t("overview")}</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2">
+          {/* <TabsTrigger value="overview">{t("overview")}</TabsTrigger> */}
           <TabsTrigger value="shelters">{t("shelters")}</TabsTrigger>
           {(userRole === "OWNER" || userRole === "ADMIN") && (
             <TabsTrigger value="members">{t("members")}</TabsTrigger>
           )}
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
+        {/* <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Recent Shelters */}
+          
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -197,7 +194,7 @@ export function OrganizationDashboard({
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
+           
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -224,7 +221,7 @@ export function OrganizationDashboard({
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
+        </TabsContent> */}
 
         <TabsContent value="shelters" className="space-y-4">
           <ShelterStatusTable shelters={organization.shelters} />

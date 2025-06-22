@@ -41,16 +41,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
   try {
-    const authResult = await authenticateUser();
-
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
-
-    const { dbUser } = authResult;
-
+    const body = await request.json();
     // Ensure organizationId is provided
     if (!body.organizationId) {
       return NextResponse.json(
@@ -58,6 +50,22 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const authResult = await authenticateUser();
+
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+
+    const { kindeUser } = authResult;
+
+    // Check if user exists in our database
+    const dbUser = await prisma.user.findUnique({
+      where: { kindeId: kindeUser.id },
+      include: {
+        organizations: true,
+      },
+    });
 
     if (!dbUser || dbUser.organizations.length === 0) {
       return NextResponse.json(

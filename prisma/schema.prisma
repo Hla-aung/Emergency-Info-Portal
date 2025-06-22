@@ -49,6 +49,7 @@ model Organization {
   // Relations
   users       UserOrganization[]
   shelters    Shelter[]
+  occupants   Occupant[]
 }
 
 model User {
@@ -104,11 +105,41 @@ model Shelter {
   
   // Relations
   organization      Organization?     @relation(fields: [organizationId], references: [id])
+  occupants         Occupant[]
 
   @@index([type])
   @@index([isAvailable])
   @@index([latitude, longitude])
   @@index([organizationId])
+}
+
+model Occupant {
+  id          String   @id @default(uuid())
+  firstName   String
+  lastName    String?
+  age         Int?
+  gender      String?
+  phone       String?
+  emergencyContact String?
+  emergencyContactPhone String?
+  medicalConditions String?
+  specialNeeds String?
+  checkInTime DateTime @default(now())
+  checkOutTime DateTime?
+  isCheckedIn Boolean  @default(true)
+  shelterId   String
+  organizationId String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  shelter      Shelter      @relation(fields: [shelterId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@index([shelterId])
+  @@index([organizationId])
+  @@index([isCheckedIn])
+  @@index([checkInTime])
 }
 
 model PushSubscription {

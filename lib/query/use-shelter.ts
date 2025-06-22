@@ -37,8 +37,15 @@ export const useUpdateShelter = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateShelterDto }) =>
-      shelterApi.updateShelter(id, data),
+    mutationFn: ({
+      organizationId,
+      id,
+      data,
+    }: {
+      organizationId: string;
+      id: string;
+      data: UpdateShelterDto;
+    }) => shelterApi.updateShelter(organizationId, id, data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["shelters"] });
       queryClient.invalidateQueries({ queryKey: ["shelter", id] });
@@ -50,7 +57,13 @@ export const useDeleteShelter = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => shelterApi.deleteShelter(id),
+    mutationFn: ({
+      organizationId,
+      id,
+    }: {
+      organizationId: string;
+      id: string;
+    }) => shelterApi.deleteShelter(organizationId, id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shelters"] });
     },

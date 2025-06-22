@@ -23,6 +23,7 @@ import { useTranslations } from "next-intl";
 import ShelterMarkers from "./shelter/shelter-markers";
 import plateBoundaries from "@/data/plate_boundaries.json";
 import { useOrganizationContext } from "@/context/organization-context";
+import { useSearchParams } from "next/navigation";
 
 export const generateMarkerIcon = ({
   color = "#E74C3C",
@@ -90,6 +91,8 @@ const MapClickHandler = ({
 
 export default function MainMap() {
   const mapRef = useRef<Map>(null);
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q");
   const { currentOrganization } = useOrganizationContext();
   const [center, setCenter] = useState<LatLngTuple>([21.975, 96.083]);
   const [clickedPosition, setClickedPosition] = useState<LatLngTuple | null>(
@@ -249,6 +252,13 @@ export default function MainMap() {
           onOpenChange={setIsShelterDialogOpen}
           position={clickedPosition}
         />
+      )}
+      {q === "add-shelter" && (
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[200px] bg-primary z-[500] rounded border border-primary/20 p-2">
+          <p className=" text-xs text-primary-foreground">
+            Click on the map to select a location and add a new shelter
+          </p>
+        </div>
       )}
     </div>
   );

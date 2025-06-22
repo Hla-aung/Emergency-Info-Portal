@@ -18,8 +18,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MapPin, Phone, Users, Calendar, Edit, Eye } from "lucide-react";
+import { MapPin, Phone, Users, Calendar, Edit, Eye, Plus } from "lucide-react";
 import { OrganizationShelter } from "@/lib/query/use-organization-dashboard";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface ShelterStatusTableProps {
   shelters: OrganizationShelter[];
@@ -27,6 +29,7 @@ interface ShelterStatusTableProps {
 
 export function ShelterStatusTable({ shelters }: ShelterStatusTableProps) {
   const t = useTranslations("Dashboard");
+  const router = useRouter();
 
   const getShelterTypeColor = (type: string) => {
     switch (type) {
@@ -75,7 +78,10 @@ export function ShelterStatusTable({ shelters }: ShelterStatusTableProps) {
           <div className="text-center py-8">
             <MapPin className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-muted-foreground">{t("noShelters")}</p>
-            <Button className="mt-4">
+            <Button
+              className="mt-4"
+              onClick={() => router.push("/?q=add-shelter")}
+            >
               <MapPin className="h-4 w-4 mr-2" />
               {t("addFirstShelter")}
             </Button>
@@ -88,11 +94,19 @@ export function ShelterStatusTable({ shelters }: ShelterStatusTableProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MapPin className="h-5 w-5" />
-          {t("shelterStatus")}
-        </CardTitle>
-        <CardDescription>{t("shelterStatusDescription")}</CardDescription>
+        <div className="flex md:items-center justify-between flex-col md:flex-row gap-5">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              {t("shelterStatus")}
+            </CardTitle>
+            <CardDescription>{t("shelterStatusDescription")}</CardDescription>
+          </div>
+          <Button onClick={() => router.push("/?q=add-shelter")}>
+            <Plus className="h-4 w-4 mr-2" />
+            {t("addShelter")}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <Table>
@@ -104,6 +118,7 @@ export function ShelterStatusTable({ shelters }: ShelterStatusTableProps) {
               <TableHead>{t("status")}</TableHead>
               <TableHead>{t("occupancy")}</TableHead>
               <TableHead>{t("contact")}</TableHead>
+              <TableHead>{t("actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -148,6 +163,14 @@ export function ShelterStatusTable({ shelters }: ShelterStatusTableProps) {
                       {shelter.phone}
                     </div>
                   )}
+                </TableCell>
+                <TableCell>
+                  <Link href={`/dashboard/shelters/${shelter.id}`}>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <Eye className="h-4 w-4" />
+                      {t("viewDetails")}
+                    </Button>
+                  </Link>
                 </TableCell>
               </TableRow>
             ))}

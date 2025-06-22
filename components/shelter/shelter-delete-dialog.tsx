@@ -13,6 +13,8 @@ import { Loader2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Shelter } from "@prisma/client";
 import { useDeleteShelter } from "@/lib/query/use-shelter";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface ShelterDeleteDialogProps {
   shelter: Shelter;
@@ -22,19 +24,28 @@ export default function ShelterDeleteDialog({
   shelter,
 }: ShelterDeleteDialogProps) {
   const t = useTranslations("Shelter");
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
   const { mutate: deleteShelter, isPending } = useDeleteShelter();
 
   const handleDelete = () => {
-    deleteShelter(shelter.id, {
-      onSuccess: () => {
-        setIsOpen(false);
+    deleteShelter(
+      {
+        organizationId: shelter.organizationId,
+        id: shelter.id,
       },
-      onError: (error) => {
-        alert(error);
-      },
-    });
+      {
+        onSuccess: () => {
+          setIsOpen(false);
+          toast.success(shelter.name + " " + "deleted");
+          router.push(`/dashboard`);
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to delete shelter");
+        },
+      }
+    );
   };
 
   return (

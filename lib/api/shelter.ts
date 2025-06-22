@@ -56,13 +56,20 @@ export const shelterApi = {
     return response.data;
   },
 
-  updateShelter: async (id: string, data: UpdateShelterDto) => {
-    const response = await ApiManager.patch<Shelter>(`/shelters/${id}`, data);
+  updateShelter: async (
+    organizationId: string,
+    id: string,
+    data: UpdateShelterDto
+  ) => {
+    const response = await ApiManager.patch<Shelter>(
+      `/organizations/${organizationId}/shelters/${id}`,
+      data
+    );
     return response.data;
   },
 
-  deleteShelter: async (id: string) => {
-    await ApiManager.delete(`/shelters/${id}`);
+  deleteShelter: async (organizationId: string, id: string) => {
+    await ApiManager.delete(`/organizations/${organizationId}/shelters/${id}`);
   },
 
   updateShelterOccupancy: async (id: string, occupancy: number) => {
