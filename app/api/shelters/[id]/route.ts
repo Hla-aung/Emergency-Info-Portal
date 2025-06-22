@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { authenticateUser } from "@/lib/api/auth";
 
 export async function GET(
   request: Request,
@@ -31,8 +32,23 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
+
+    const authResult = await authenticateUser();
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+
+    const { dbUser } = authResult;
+
+    if (!dbUser || dbUser.organizations.length === 0) {
+      return NextResponse.json(
+        { error: "Access denied to organization" },
+        { status: 403 }
+      );
+    }
+
     const shelter = await prisma.shelter.update({
-      where: { id: id },
+      where: { id: id, organizationId: dbUser.organizations[0].id },
       data: {
         ...body,
         resourcesAvailable: body.resourcesAvailable || undefined,
@@ -55,8 +71,22 @@ export async function DELETE(
   try {
     const { id } = await params;
 
+    const authResult = await authenticateUser();
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+
+    const { dbUser } = authResult;
+
+    if (!dbUser || dbUser.organizations.length === 0) {
+      return NextResponse.json(
+        { error: "Access denied to organization" },
+        { status: 403 }
+      );
+    }
+
     await prisma.shelter.delete({
-      where: { id: id },
+      where: { id: id, organizationId: dbUser.organizations[0].id },
     });
 
     return NextResponse.json({ success: true });

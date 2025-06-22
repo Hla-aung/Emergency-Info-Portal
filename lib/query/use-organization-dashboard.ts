@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ApiManager } from "@/lib/api/axios";
 
 export interface OrganizationMember {
@@ -66,5 +66,18 @@ export const useOrganizationDashboard = (organizationId: string) => {
       return response.data;
     },
     enabled: !!organizationId,
+    refetchInterval: 1000 * 60,
+  });
+};
+
+export const useRemoveOrganizationMember = (organizationId: string) => {
+  return useMutation({
+    mutationFn: async (memberId: string) => {
+      const response = await ApiManager.delete(
+        `/organizations/${organizationId}/members/${memberId}`
+      );
+      return response.data;
+    },
+    mutationKey: ["remove-organization-member", organizationId],
   });
 };

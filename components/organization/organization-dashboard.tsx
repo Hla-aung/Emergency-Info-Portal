@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import {
   Card,
@@ -23,14 +23,15 @@ import {
   User,
   Plus,
   Wifi,
+  WifiOff,
 } from "lucide-react";
 import { useOrganizationDashboard } from "@/lib/query/use-organization-dashboard";
-import { useRealtimeOrganizationMembers } from "@/hooks/use-realtime-organization-members";
+import { useOrganizationRealtime } from "@/hooks/use-organization-realtime";
+import { OrganizationMember } from "@/lib/query/use-organization-dashboard";
 import { ShelterStatusTable } from "./shelter-status-table";
 import { OrganizationMembers } from "./organization-members";
 import { OrganizationStatistics } from "./organization-statistics";
-import { RealtimeNotification } from "@/components/common/realtime-notification";
-import { OrganizationMember } from "@/lib/query/use-organization-dashboard";
+import { toast } from "sonner";
 
 interface OrganizationDashboardProps {
   organizationId: string;
@@ -40,18 +41,42 @@ export function OrganizationDashboard({
   organizationId,
 }: OrganizationDashboardProps) {
   const t = useTranslations("Dashboard");
-  const { data, isLoading, error } = useOrganizationDashboard(organizationId);
-  const { members: realtimeMembers, isLoading: membersLoading } =
-    useRealtimeOrganizationMembers(organizationId);
+  const { data, isLoading, error, isFetched } =
+    useOrganizationDashboard(organizationId);
   const [activeTab, setActiveTab] = useState("overview");
-  const previousMembersRef = useRef<OrganizationMember[]>([]);
+  const [members, setMembers] = useState<OrganizationMember[]>([]);
 
-  // Track previous members for notifications
+  // Real-time functionality
+  const { isConnected } = useOrganizationRealtime({
+    organizationId,
+    onMemberJoined: useCallback((newMember: OrganizationMember) => {
+      setMembers((prev) => {
+        // Check if member already exists
+        const exists = prev.find((m) => m.id === newMember.id);
+        if (exists) return prev;
+
+        // Add new member to the list
+        return [...prev, newMember];
+      });
+
+      const memberName =
+        newMember.user.firstName && newMember.user.lastName
+          ? `${newMember.user.firstName} ${newMember.user.lastName}`
+          : newMember.user.email;
+
+      toast.success(
+        t("memberJoinedNotification", {
+          name: memberName,
+        })
+      );
+    }, []),
+  });
+
   useEffect(() => {
-    if (realtimeMembers.length > 0) {
-      previousMembersRef.current = realtimeMembers;
+    if (data && data.members && data.members.length > 0) {
+      setMembers(data.members);
     }
-  }, [realtimeMembers]);
+  }, [data]);
 
   if (isLoading) {
     return (
@@ -66,7 +91,7 @@ export function OrganizationDashboard({
     );
   }
 
-  if (error) {
+  if (isFetched && error) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -84,19 +109,9 @@ export function OrganizationDashboard({
   }
 
   const { organization, userRole, statistics } = data;
-  // Use realtime members if available, otherwise fall back to static data
-  const members =
-    realtimeMembers.length > 0 ? realtimeMembers : data.members || [];
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Realtime Notifications */}
-      <RealtimeNotification
-        previousMembers={previousMembersRef.current}
-        currentMembers={members}
-        organizationName={organization.displayName || organization.name}
-      />
-
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -112,10 +127,8 @@ export function OrganizationDashboard({
             {userRole === "MEMBER" && <User className="h-3 w-3 mr-1" />}
             {t(userRole.toLowerCase())}
           </Badge>
-          {/* Realtime indicator */}
-          <Badge variant="secondary" className="bg-green-100 text-green-800">
-            <Wifi className="h-3 w-3 mr-1" />
-            {t("live")}
+          <Badge variant="outline">
+            {isConnected ? t("realtimeConnected") : t("realtimeDisconnected")}
           </Badge>
         </div>
       </div>
@@ -219,11 +232,7 @@ export function OrganizationDashboard({
 
         {(userRole === "OWNER" || userRole === "ADMIN") && (
           <TabsContent value="members" className="space-y-4">
-            <OrganizationMembers
-              members={members}
-              isLoading={membersLoading}
-              isRealtime={true}
-            />
+            <OrganizationMembers members={members} userRole={userRole} />
           </TabsContent>
         )}
       </Tabs>

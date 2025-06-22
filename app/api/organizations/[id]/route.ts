@@ -1,35 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { authenticateUser } from "@/lib/api/auth";
 import { prisma } from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { isAuthenticated, getUser } = getKindeServerSession();
-    const authenticated = await isAuthenticated();
+    const { id } = await params;
 
-    if (!authenticated) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authResult = await authenticateUser();
+
+    if (authResult instanceof NextResponse) {
+      return authResult;
     }
 
-    const user = await getUser();
-    if (!user || !user.id) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
+    const { kindeUser } = authResult;
 
+    // Check if user exists in our database
     const dbUser = await prisma.user.findUnique({
-      where: { kindeId: user.id },
+      where: { kindeId: kindeUser.id },
       include: {
-        organizations: {
-          where: {
-            organizationId: params.id,
-          },
-          include: {
-            organization: true,
-          },
-        },
+        organizations: true,
       },
     });
 
@@ -38,11 +30,10 @@ export async function GET(
     }
 
     const userRole = dbUser.organizations[0].role;
-    const organization = dbUser.organizations[0].organization;
 
     // Get organization details with shelters
     const organizationWithShelters = await prisma.organization.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         shelters: {
           orderBy: { createdAt: "desc" },
@@ -61,7 +52,7 @@ export async function GET(
     let members = null;
     if (userRole === "OWNER" || userRole === "ADMIN") {
       members = await prisma.userOrganization.findMany({
-        where: { organizationId: params.id },
+        where: { organizationId: id },
         include: {
           user: {
             select: {
@@ -73,7 +64,7 @@ export async function GET(
             },
           },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: "asc" },
       });
     }
 

@@ -104,7 +104,6 @@ export function ShelterStatusTable({ shelters }: ShelterStatusTableProps) {
               <TableHead>{t("status")}</TableHead>
               <TableHead>{t("occupancy")}</TableHead>
               <TableHead>{t("contact")}</TableHead>
-              <TableHead>{t("actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -112,8 +111,7 @@ export function ShelterStatusTable({ shelters }: ShelterStatusTableProps) {
               <TableRow key={shelter.id}>
                 <TableCell className="font-medium">{shelter.name}</TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3 text-muted-foreground" />
+                  <div className="flex items-center gap-1 max-w-[200px]">
                     {shelter.location}
                   </div>
                 </TableCell>
@@ -131,7 +129,6 @@ export function ShelterStatusTable({ shelters }: ShelterStatusTableProps) {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
-                    <Users className="h-3 w-3 text-muted-foreground" />
                     {shelter.currentOccupancy}/{shelter.capacity}
                   </div>
                 </TableCell>
@@ -151,16 +148,6 @@ export function ShelterStatusTable({ shelters }: ShelterStatusTableProps) {
                       {shelter.phone}
                     </div>
                   )}
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
-                      <Eye className="h-3 w-3" />
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                  </div>
                 </TableCell>
               </TableRow>
             ))}

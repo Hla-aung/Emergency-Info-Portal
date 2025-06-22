@@ -16,6 +16,7 @@ export interface CreateShelterDto {
   resourcesAvailable?: ShelterResource[];
   latitude: number;
   longitude: number;
+  organizationId: string;
 }
 
 export interface UpdateShelterDto extends Partial<CreateShelterDto> {

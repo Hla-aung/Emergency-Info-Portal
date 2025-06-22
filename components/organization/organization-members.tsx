@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import {
   Card,
@@ -29,27 +29,51 @@ import {
   Calendar,
   Plus,
   MoreHorizontal,
-  Wifi,
-  Loader2,
+  Sparkles,
+  Trash2,
 } from "lucide-react";
 import { OrganizationMember } from "@/lib/query/use-organization-dashboard";
 import { InviteMemberDialog } from "./invite-member-dialog";
 import { useOrganizationContext } from "@/context/organization-context";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useRemoveOrganizationMember } from "@/lib/query/use-organization-dashboard";
+import { toast } from "sonner";
 
 interface OrganizationMembersProps {
   members: OrganizationMember[];
-  isLoading?: boolean;
-  isRealtime?: boolean;
+  userRole: "OWNER" | "ADMIN" | "MEMBER";
 }
 
 export function OrganizationMembers({
   members,
-  isLoading = false,
-  isRealtime = false,
+  userRole,
 }: OrganizationMembersProps) {
   const t = useTranslations("Dashboard");
   const { currentOrganization } = useOrganizationContext();
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [memberToRemove, setMemberToRemove] =
+    useState<OrganizationMember | null>(null);
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+
+  const { mutate: removeMember, isPending: isRemoving } =
+    useRemoveOrganizationMember(currentOrganization?.id || "");
+
+  const canRemoveMembers = userRole === "OWNER" || userRole === "ADMIN";
 
   const getRoleIcon = (role: string) => {
     switch (role) {
@@ -106,23 +130,34 @@ export function OrganizationMembers({
     return new Date(dateString).toLocaleDateString();
   };
 
+  const handleRemoveMember = (member: OrganizationMember) => {
+    setMemberToRemove(member);
+    setRemoveDialogOpen(true);
+  };
+
+  const confirmRemoveMember = () => {
+    if (!memberToRemove) return;
+
+    removeMember(memberToRemove.user.id, {
+      onSuccess: () => {
+        toast.success(
+          `${
+            memberToRemove.user.firstName || memberToRemove.user.email
+          } has been removed from the organization.`
+        );
+        setRemoveDialogOpen(false);
+        setMemberToRemove(null);
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to remove member");
+      },
+    });
+  };
+
   const roleCounts = members.reduce((acc, member) => {
     acc[member.role] = (acc[member.role] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-center">
-          <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
-          <p className="mt-2 text-sm text-muted-foreground">
-            {t("loadingMembers")}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -133,10 +168,7 @@ export function OrganizationMembers({
             <CardTitle className="text-sm font-medium">
               {t("totalMembers")}
             </CardTitle>
-            <div className="flex items-center gap-1">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              {isRealtime && <Wifi className="h-3 w-3 text-green-500" />}
-            </div>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{members.length}</div>
@@ -193,15 +225,6 @@ export function OrganizationMembers({
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
                 {t("organizationMembers")}
-                {isRealtime && (
-                  <Badge
-                    variant="secondary"
-                    className="bg-green-100 text-green-800"
-                  >
-                    <Wifi className="h-3 w-3 mr-1" />
-                    {t("live")}
-                  </Badge>
-                )}
               </CardTitle>
               <CardDescription>
                 {t("organizationMembersDescription")}
@@ -225,57 +248,76 @@ export function OrganizationMembers({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {members.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback>
-                          {getInitials(
-                            member.user.firstName,
-                            member.user.lastName
-                          )}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">
-                          {member.user.firstName && member.user.lastName
-                            ? `${member.user.firstName} ${member.user.lastName}`
-                            : t("unnamedUser")}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {member.user.firstName && member.user.lastName
-                            ? member.user.email
-                            : ""}
-                        </p>
+              {members.map((member) => {
+                return (
+                  <TableRow key={member.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-8 w-8 relative">
+                          <AvatarFallback>
+                            {getInitials(
+                              member.user.firstName,
+                              member.user.lastName
+                            )}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium">
+                              {member.user.firstName && member.user.lastName
+                                ? `${member.user.firstName} ${member.user.lastName}`
+                                : t("unnamedUser")}
+                            </p>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {member.user.firstName && member.user.lastName
+                              ? member.user.email
+                              : ""}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      {member.user.email}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="hidden md:flex">
-                        {getRoleIcon(member.role)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        {member.user.email}
                       </div>
-                      {getRoleBadge(member.role)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      {formatDate(member.createdAt)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="sm">
-                      <MoreHorizontal className="h-3 w-3" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div className="hidden md:flex">
+                          {getRoleIcon(member.role)}
+                        </div>
+                        {getRoleBadge(member.role)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        {formatDate(member.createdAt)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {canRemoveMembers && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <MoreHorizontal className="h-3 w-3" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleRemoveMember(member)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              {t("removeMember")}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>
@@ -290,6 +332,39 @@ export function OrganizationMembers({
           currentOrganization?.displayName || currentOrganization?.name
         }
       />
+
+      {/* Remove Member Confirmation Dialog */}
+      <AlertDialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("removeMember")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {memberToRemove && (
+                <>
+                  Are you sure you want to remove{" "}
+                  <strong>
+                    {memberToRemove.user.firstName &&
+                    memberToRemove.user.lastName
+                      ? `${memberToRemove.user.firstName} ${memberToRemove.user.lastName}`
+                      : memberToRemove.user.email}
+                  </strong>{" "}
+                  from the organization? This action cannot be undone.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmRemoveMember}
+              disabled={isRemoving}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isRemoving ? "Removing..." : "Remove Member"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

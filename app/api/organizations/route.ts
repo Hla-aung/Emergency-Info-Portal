@@ -1,39 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { prisma } from "@/lib/prisma";
+import {
+  supabase,
+  getOrganizationChannel,
+  REALTIME_EVENTS,
+} from "@/lib/supabase";
+import { authenticateUser } from "@/lib/api/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const { isAuthenticated, getUser } = getKindeServerSession();
-    const authenticated = await isAuthenticated();
+    const authResult = await authenticateUser();
 
-    if (!authenticated) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (authResult instanceof NextResponse) {
+      return authResult;
     }
 
-    const user = await getUser();
-    if (!user || !user.id) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    const { action, organizationId, organizationName } = await req.json();
+    const { kindeUser } = authResult;
 
     // Check if user exists in our database
-    let dbUser = await prisma.user.findUnique({
-      where: { kindeId: user.id },
+    const dbUser = await prisma.user.findUnique({
+      where: { kindeId: kindeUser.id },
     });
 
-    if (!dbUser) {
-      // Create user if doesn't exist
-      dbUser = await prisma.user.create({
-        data: {
-          kindeId: user.id,
-          email: user.email || "",
-          firstName: user.given_name || null,
-          lastName: user.family_name || null,
-        },
-      });
-    }
+    const { action, organizationId, organizationName } = await req.json();
 
     if (action === "create") {
       // Create new organization
@@ -106,13 +95,46 @@ export async function POST(req: NextRequest) {
       }
 
       // Add user to organization
-      await prisma.userOrganization.create({
+      const newMembership = await prisma.userOrganization.create({
         data: {
           userId: dbUser.id,
           organizationId: organization.id,
           role: "MEMBER",
         },
+        include: {
+          user: true,
+        },
       });
+
+      // Broadcast real-time event for member join
+      try {
+        const channel = supabase.channel(
+          getOrganizationChannel(organization.id)
+        );
+
+        await channel.send({
+          type: "broadcast",
+          event: REALTIME_EVENTS.MEMBER_JOINED,
+          payload: {
+            type: REALTIME_EVENTS.MEMBER_JOINED,
+            organizationId: organization.id,
+            data: {
+              member: {
+                id: newMembership.id,
+                email: newMembership.user.email,
+                firstName: newMembership.user.firstName,
+                lastName: newMembership.user.lastName,
+                role: newMembership.role,
+                joinedAt: newMembership.createdAt.toISOString(),
+              },
+            },
+            timestamp: new Date().toISOString(),
+          },
+        });
+      } catch (broadcastError) {
+        console.error("Failed to broadcast member join event:", broadcastError);
+        // Don't fail the request if broadcasting fails
+      }
 
       return NextResponse.json({
         message: "Successfully joined organization",
@@ -132,20 +154,16 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const { isAuthenticated, getUser } = getKindeServerSession();
-    const authenticated = await isAuthenticated();
+    const authResult = await authenticateUser();
 
-    if (!authenticated) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (authResult instanceof NextResponse) {
+      return authResult;
     }
 
-    const user = await getUser();
-    if (!user || !user.id) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
+    const { kindeUser } = authResult;
 
-    const dbUser = await prisma.user.findUnique({
-      where: { kindeId: user.id },
+    const userWithOrganizations = await prisma.user.findUnique({
+      where: { kindeId: kindeUser.id },
       include: {
         organizations: {
           include: {
@@ -155,12 +173,12 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    if (!dbUser) {
+    if (!userWithOrganizations) {
       return NextResponse.json({ organizations: [] });
     }
 
     return NextResponse.json({
-      organizations: dbUser.organizations.map((uo) => ({
+      organizations: userWithOrganizations.organizations.map((uo) => ({
         ...uo.organization,
         role: uo.role,
       })),

@@ -13,6 +13,7 @@ export const formSchema = z.object({
   isAvailable: z.boolean().default(true),
   isAccessible: z.boolean().optional(),
   notes: z.string().optional(),
+  organizationId: z.string().min(1, "Organization ID is required"),
   resourcesAvailable: z
     .array(
       z.enum([

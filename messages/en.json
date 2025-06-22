@@ -58,7 +58,7 @@
     "english": "English",
     "myanmar": "Myanmar",
     "organization": "Organization",
-    "create_organization": "Create Organization"
+    "create_organization": "Create or Join Organization"
   },
   "SearchPage": {
     "title": "Earthquake Search",
@@ -144,6 +144,7 @@
     "ownerDescription": "Organization owner",
     "admin": "Admin",
     "adminDescription": "Organization administrator",
+
     "memberDescription": "Regular member",
     "owners": "Owners",
     "ownersDescription": "Organization owners",
@@ -169,14 +170,12 @@
     "copiedToClipboard": "Organization ID copied to clipboard",
     "copyFailed": "Failed to copy organization ID",
     "shareFailed": "Failed to share organization ID",
-    "live": "Live",
-    "loadingMembers": "Loading members...",
-    "newMemberJoined": "New Member Joined",
-    "joinedOrganization": "joined the organization",
-    "memberLeft": "Member Left",
-    "leftOrganization": "left the organization",
-    "roleChanged": "Role Changed",
-    "roleChangedTo": "role changed to",
-    "organization": "organization"
+    "memberJoinedNotification": "{name} joined the organization",
+    "memberJoinedDescription": "A new member has joined your organization",
+    "realtimeConnected": "Real-time connection established",
+    "realtimeDisconnected": "Real-time connection lost",
+    "realtimeConnecting": "Connecting to real-time service...",
+    "new": "New",
+    "removeMember": "Remove Member"
   }
 }

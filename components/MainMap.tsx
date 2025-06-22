@@ -22,6 +22,7 @@ import ShelterDialog from "./shelter/shelter-dialog";
 import { useTranslations } from "next-intl";
 import ShelterMarkers from "./shelter/shelter-markers";
 import plateBoundaries from "@/data/plate_boundaries.json";
+import { useOrganizationContext } from "@/context/organization-context";
 
 export const generateMarkerIcon = ({
   color = "#E74C3C",
@@ -89,6 +90,7 @@ const MapClickHandler = ({
 
 export default function MainMap() {
   const mapRef = useRef<Map>(null);
+  const { currentOrganization } = useOrganizationContext();
   const [center, setCenter] = useState<LatLngTuple>([21.975, 96.083]);
   const [clickedPosition, setClickedPosition] = useState<LatLngTuple | null>(
     null
@@ -164,7 +166,7 @@ export default function MainMap() {
         />
         <ZoomControl position="topleft" />
         <MapClickHandler onClick={handleMapClick} />
-        {clickedPosition && (
+        {clickedPosition && currentOrganization?.id && (
           <Marker
             position={clickedPosition}
             icon={generateMarkerIcon({ color: "#22c55e" })}
@@ -241,7 +243,7 @@ export default function MainMap() {
           </div>
         </PopoverContent>
       </Popover>
-      {clickedPosition && (
+      {clickedPosition && currentOrganization?.id && (
         <ShelterDialog
           open={isShelterDialogOpen}
           onOpenChange={setIsShelterDialogOpen}

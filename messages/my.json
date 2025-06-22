@@ -58,7 +58,7 @@
     "english": "အင်္ဂလိပ်",
     "myanmar": "မြန်မာ",
     "organization": "အဖွဲ့အစည်း",
-    "create_organization": "အဖွဲ့အစည်းဖန်တီးရန်"
+    "create_organization": "အဖွဲ့အစည်းဖန်တီးရန် သို့မဟုတ် ပါဝင်ရန်"
   },
   "SearchPage": {
     "title": "ငလျင်ရှာဖွေရေး",
@@ -167,16 +167,14 @@
     "share": "မျှဝေရန်",
     "close": "ပိတ်ရန်",
     "copiedToClipboard": "အဖွဲ့အစည်း ID ကို clipboard သို့ ကူးယူပြီးပါပြီ",
-    "copyFailed": "အဖွဲ့အစည်း ID ကူးယူရာတွင် မအောင်မြင်ပါ",
-    "shareFailed": "အဖွဲ့အစည်း ID မျှဝေရာတွင် မအောင်မြင်ပါ",
-    "live": "တိုက်ရိုက်",
-    "loadingMembers": "အဖွဲ့ဝင်များ ဖော်ပြခြင်း...",
-    "newMemberJoined": "အဖွဲ့ဝင်အသစ် ပါဝင်လာသည်",
-    "joinedOrganization": "အဖွဲ့အစည်းတွင် ပါဝင်လာသည်",
-    "memberLeft": "အဖွဲ့ဝင် ထွက်သွားသည်",
-    "leftOrganization": "အဖွဲ့အစည်းမှ ထွက်သွားသည်",
-    "roleChanged": "အခန်းကဏ္ဍ ပြောင်းလဲသည်",
-    "roleChangedTo": "အခန်းကဏ္ဍ ပြောင်းလဲသွားသည်",
-    "organization": "အဖွဲ့အစည်း"
+    "copyFailed": "အဖွဲ့အစည်း ID ကို ကူးယူရာတွင် မအောင်မြင်ပါ",
+    "shareFailed": "အဖွဲ့အစည်း ID ကို မျှဝေရာတွင် မအောင်မြင်ပါ",
+    "memberJoinedNotification": "{name} သည် အဖွဲ့အစည်းတွင် ပါဝင်လာပါပြီ",
+    "memberJoinedDescription": "အဖွဲ့ဝင်အသစ်တစ်ဦး သင့်အဖွဲ့အစည်းတွင် ပါဝင်လာပါပြီ",
+    "realtimeConnected": "Real-time ချိတ်ဆက်မှု ထူထောင်ပြီးပါပြီ",
+    "realtimeDisconnected": "Real-time ချိတ်ဆက်မှု ပျက်သွားပါပြီ",
+    "realtimeConnecting": "Real-time ဝန်ဆောင်မှုသို့ ချိတ်ဆက်နေသည်...",
+    "new": "အသစ်",
+    "removeMember": "အဖွဲ့ဝင်အဖြစ်မှ ဖယ်ရှားမည်"
   }
 }

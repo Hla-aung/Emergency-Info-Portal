@@ -38,6 +38,7 @@ import { formSchema } from "@/lib/schemas/shelter";
 import { useReverseGeocoding } from "@/lib/query/use-nominatim";
 import React, { useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { useOrganizationContext } from "@/context/organization-context";
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -53,15 +54,18 @@ export default function ShelterDialog({
   position,
 }: ShelterDialogProps) {
   const t = useTranslations("Shelter");
+  const { currentOrganization } = useOrganizationContext();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: currentOrganization?.name || "",
       location: "",
       phone: "",
       capacity: 0,
       type: "TEMPORARY",
       isAvailable: true,
+      organizationId: currentOrganization?.id || "",
     },
   });
 
@@ -79,10 +83,23 @@ export default function ShelterDialog({
     }
   }, [reverseGeocoding, form]);
 
+  // Update organizationId when currentOrganization changes
+  useEffect(() => {
+    if (currentOrganization?.id) {
+      form.setValue("organizationId", currentOrganization.id);
+    }
+  }, [currentOrganization, form]);
+
   const handleSubmit = (data: FormValues) => {
+    if (!currentOrganization?.id) {
+      alert("No organization selected");
+      return;
+    }
+
     createShelter(
       {
         ...data,
+        organizationId: currentOrganization.id,
         latitude: Number(reverseGeocoding?.lat) || position[0],
         longitude: Number(reverseGeocoding?.lon) || position[1],
       } as CreateShelterDto,
@@ -95,6 +112,11 @@ export default function ShelterDialog({
     form.reset();
     onOpenChange(false);
   };
+
+  // Don't render if no organization is selected
+  if (!currentOrganization?.id) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

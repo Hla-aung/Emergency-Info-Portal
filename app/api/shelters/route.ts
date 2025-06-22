@@ -1,6 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { ShelterResource, ShelterType } from "@prisma/client";
+import { authenticateUser } from "@/lib/api/auth";
 
 export async function GET(request: Request) {
   try {
@@ -38,9 +40,32 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const body = await request.json();
   try {
-    const body = await request.json();
+    const authResult = await authenticateUser();
+
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+
+    const { dbUser } = authResult;
+
+    // Ensure organizationId is provided
+    if (!body.organizationId) {
+      return NextResponse.json(
+        { error: "Organization ID is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!dbUser || dbUser.organizations.length === 0) {
+      return NextResponse.json(
+        { error: "Access denied to organization" },
+        { status: 403 }
+      );
+    }
+
     const shelter = await prisma.shelter.create({
       data: {
         ...body,
@@ -50,6 +75,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(shelter);
   } catch (error) {
+    console.error("Create shelter error:", error);
     return NextResponse.json(
       { error: "Failed to create shelter" },
       { status: 500 }
