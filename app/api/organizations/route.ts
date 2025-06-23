@@ -18,11 +18,38 @@ export async function POST(req: NextRequest) {
     const { kindeUser } = authResult;
 
     // Check if user exists in our database
-    const dbUser = await prisma.user.findUnique({
+    let dbUser = await prisma.user.findUnique({
       where: { kindeId: kindeUser.id },
     });
 
-    const { action, organizationId, organizationName } = await req.json();
+    if (!dbUser) {
+      dbUser = await prisma.user.create({
+        data: {
+          kindeId: kindeUser.id,
+          email: kindeUser.email,
+          firstName: kindeUser.given_name,
+          lastName: kindeUser.family_name,
+        },
+      });
+    }
+
+    const userOrganizations = await prisma.userOrganization.findMany({
+      where: {
+        userId: dbUser.id,
+      },
+    });
+
+    if (userOrganizations.length > 0) {
+      return NextResponse.json(
+        {
+          error: "User already has organizations",
+        },
+        { status: 400 }
+      );
+    }
+
+    const { action, organizationId, organizationName, organizationPhone } =
+      await req.json();
 
     if (action === "create") {
       // Create new organization
@@ -33,11 +60,19 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      if (!organizationPhone) {
+        return NextResponse.json(
+          { error: "Organization phone is required" },
+          { status: 400 }
+        );
+      }
+
       const organization = await prisma.organization.create({
         data: {
           kindeOrgId: `org_${Date.now()}`, // You might want to get this from Kinde API
           name: organizationName,
           displayName: organizationName,
+          phone: organizationPhone,
           users: {
             create: {
               userId: dbUser.id,

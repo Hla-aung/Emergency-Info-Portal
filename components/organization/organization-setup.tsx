@@ -1,10 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -12,13 +9,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Building2, Users, Plus, ArrowRight } from "lucide-react";
 import {
   useCreateOrganization,
   useJoinOrganization,
 } from "@/lib/query/use-organization";
+import { ArrowRight, Building2, Loader2, Plus, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface OrganizationSetupProps {
   onComplete?: () => void;
@@ -29,12 +29,11 @@ export function OrganizationSetup({ onComplete }: OrganizationSetupProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("create");
   const [organizationName, setOrganizationName] = useState("");
+  const [organizationPhone, setOrganizationPhone] = useState("");
   const [organizationId, setOrganizationId] = useState("");
 
   const createOrganization = useCreateOrganization();
   const joinOrganization = useJoinOrganization();
-
-  const locale = useLocale();
 
   const handleCreateOrganization = async () => {
     if (!organizationName.trim()) return;
@@ -43,10 +42,11 @@ export function OrganizationSetup({ onComplete }: OrganizationSetupProps) {
       await createOrganization.mutateAsync({
         action: "create",
         organizationName: organizationName.trim(),
+        organizationPhone: organizationPhone.trim(),
       });
 
       onComplete?.();
-      router.push(`/${locale}`);
+      router.push(`/dashboard`);
     } catch (error) {
       console.error("Failed to create organization:", error);
     }
@@ -62,7 +62,7 @@ export function OrganizationSetup({ onComplete }: OrganizationSetupProps) {
       });
 
       onComplete?.();
-      router.push(`/${locale}`);
+      router.push(`/dashboard`);
     } catch (error) {
       console.error("Failed to join organization:", error);
     }
@@ -105,6 +105,19 @@ export function OrganizationSetup({ onComplete }: OrganizationSetupProps) {
                   placeholder={t("organizationNamePlaceholder")}
                   value={organizationName}
                   onChange={(e) => setOrganizationName(e.target.value)}
+                  disabled={createOrganization.isPending}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="org-phone" className="text-sm font-medium">
+                  {t("organizationPhone")}
+                </label>
+                <Input
+                  id="org-phone"
+                  placeholder={t("organizationPhonePlaceholder")}
+                  value={organizationPhone}
+                  onChange={(e) => setOrganizationPhone(e.target.value)}
                   disabled={createOrganization.isPending}
                 />
               </div>

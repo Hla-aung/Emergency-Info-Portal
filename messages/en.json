@@ -13,7 +13,8 @@
     "login": "Login",
     "logout": "Logout",
     "add_update": "Add Update",
-    "add_shelter": "Add Shelter"
+    "add_shelter": "Add Shelter",
+    "add_damage_report": "Add Damage Report"
   },
   "Shelter": {
     "add_shelter": "Add Shelter",
@@ -143,6 +144,8 @@
     "joinExisting": "Join Existing",
     "organizationName": "Organization Name",
     "organizationNamePlaceholder": "Enter organization name",
+    "organizationPhone": "Organization Phone",
+    "organizationPhonePlaceholder": "Enter organization phone",
     "organizationId": "Organization ID",
     "organizationIdPlaceholder": "Enter organization ID",
     "organizationIdHelp": "Ask your organization admin for the organization ID",

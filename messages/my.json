@@ -13,7 +13,8 @@
     "login": "ဝင်ရန်",
     "logout": "ထွက်ရန်",
     "add_update": "သတင်းထည့်ရန်",
-    "add_shelter": "ခိုလှုံရာထည့်ရန်"
+    "add_shelter": "ခိုလှုံရာထည့်ရန်",
+    "add_damage_report": "ထိခိုက်ပျက်စီးမှုများထည့်ရန်"
   },
   "Shelter": {
     "add_shelter": "ခိုလှုံရာထည့်ရန်",
@@ -143,6 +144,8 @@
     "joinExisting": "ရှိပြီးသားတွင် ပါဝင်ရန်",
     "organizationName": "အဖွဲ့အစည်းအမည်",
     "organizationNamePlaceholder": "အဖွဲ့အစည်းအမည်ကို ထည့်သွင်းပါ",
+    "organizationPhone": "အဖွဲ့အစည်းဖုန်း",
+    "organizationPhonePlaceholder": "အဖွဲ့အစည်းဖုန်းကို ထည့်သွင်းပါ",
     "organizationId": "အဖွဲ့အစည်း ID",
     "organizationIdPlaceholder": "အဖွဲ့အစည်း ID ကို ထည့်သွင်းပါ",
     "organizationIdHelp": "အဖွဲ့အစည်း ID ကို သင့်အက်မင်ထံ မေးမြန်းပါ",

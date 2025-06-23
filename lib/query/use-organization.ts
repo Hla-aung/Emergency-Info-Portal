@@ -14,6 +14,7 @@ export interface Organization {
 export interface CreateOrganizationData {
   action: "create";
   organizationName: string;
+  organizationPhone: string;
 }
 
 export interface JoinOrganizationData {

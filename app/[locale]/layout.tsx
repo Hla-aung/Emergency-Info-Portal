@@ -10,6 +10,7 @@ import "@/app/globals.css";
 import { cn } from "@/lib/utils";
 import MenuBar from "@/components/common/menu-bar";
 import FloatingNav from "@/components/common/floating-nav";
+import Chatbot from "@/components/chatbot/chatbot";
 
 type Props = {
   children: ReactNode;
@@ -64,6 +65,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <Providers>
             {children}
             <FloatingNav />
+            <Chatbot />
           </Providers>
         </NextIntlClientProvider>
       </body>

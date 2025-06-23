@@ -2,7 +2,7 @@
 
 A Progressive Web App (PWA) built with **Next.js**, **Tailwind CSS**, **Supabase**, and **Leaflet** to help users find and share critical shelter information during emergencies.
 
-> 🌍 Available in English and Burmese | 🗺️ Map-based shelter submission and lookup | 🔔 Real-time notifications with alerts | ⚡ Real-time member updates
+> 🌍 Available in English and Burmese | 🗺️ Map-based shelter submission and lookup | 🔔 Real-time notifications with alerts | ⚡ Real-time member updates | 🤖 AI-powered emergency assistance
 
 ## 🚀 Features
 
@@ -10,6 +10,7 @@ A Progressive Web App (PWA) built with **Next.js**, **Tailwind CSS**, **Supabase
 - View **Earthquakes** on map
 - Progressive Web App (PWA) support for push notifications
 - **Real-time member updates** when users join organizations
+- **AI Chatbot** for emergency assistance and information
 - Interactive map integration
 - Multi-language support
 - Responsive design
@@ -26,6 +27,7 @@ A Progressive Web App (PWA) built with **Next.js**, **Tailwind CSS**, **Supabase
 - **Maps**: Leaflet
 - **Form Handling**: React Hook Form
 - **Internationalization**: next-intl
+- **AI Integration**: OpenAI GPT-3.5-turbo
 
 ## 📱 Progressive Web App (PWA)
 
@@ -157,6 +159,31 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🤝 Contributing
 
 Contributions, feedback, and ideas are welcome! Please feel free to submit a Pull Request.
+
+## 🤖 AI Chatbot
+
+The application includes an AI-powered chatbot that provides emergency assistance and information:
+
+- **Emergency Guidance**: Get information about shelters, evacuation procedures, and safety tips
+- **Quick Actions**: Pre-defined buttons for common emergency queries
+- **Real-time Responses**: Instant AI-powered responses to user questions
+- **Chat History**: Persistent conversation history across sessions
+- **Mobile Optimized**: Fully responsive design for all devices
+
+### Setting up the AI Chatbot
+
+1. Get an OpenAI API key from [OpenAI Platform](https://platform.openai.com/)
+2. Add the following environment variable:
+
+```bash
+OPENAI_API_KEY="your-openai-api-key"
+```
+
+3. The chatbot will automatically appear on all pages as a floating chat button
+4. Users can click the chat icon to start a conversation
+5. Quick action buttons provide instant access to common emergency information
+
+For detailed setup instructions, see [CHATBOT_SETUP.md](CHATBOT_SETUP.md).
 
 ```bash
 git checkout -b feature/your-feature
