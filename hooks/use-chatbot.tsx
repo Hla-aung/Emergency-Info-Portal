@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-interface Message {
+export interface Message {
   id: string;
   content: string;
   role: "user" | "assistant";
@@ -14,6 +14,7 @@ interface ChatbotState {
   isOpen: boolean;
   isMinimized: boolean;
   isLoading: boolean;
+  isStreaming: boolean;
 }
 
 interface UseChatbotReturn extends ChatbotState {
@@ -41,6 +42,7 @@ export const useChatbot = (): UseChatbotReturn => {
     isOpen: false,
     isMinimized: false,
     isLoading: false,
+    isStreaming: true,
   });
 
   // Load chat history from localStorage on mount
@@ -118,14 +120,12 @@ export const useChatbot = (): UseChatbotReturn => {
       }
 
       const data = await response.json();
-
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: data.message,
         role: "assistant",
         timestamp: new Date(),
       };
-
       addMessage(assistantMessage);
     } catch (error) {
       console.error("Error sending message:", error);
