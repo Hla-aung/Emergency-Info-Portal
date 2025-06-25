@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { authenticateUser } from "@/lib/api/auth";
 
 export async function GET(
   request: Request,
@@ -19,50 +20,6 @@ export async function GET(
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch shelter" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const body = await request.json();
-    const shelter = await prisma.shelter.update({
-      where: { id: id },
-      data: {
-        ...body,
-        resourcesAvailable: body.resourcesAvailable || undefined,
-      },
-    });
-
-    return NextResponse.json(shelter);
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to update shelter" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-
-    await prisma.shelter.delete({
-      where: { id: id },
-    });
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to delete shelter" },
       { status: 500 }
     );
   }

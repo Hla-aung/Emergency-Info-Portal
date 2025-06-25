@@ -22,6 +22,11 @@ import ShelterDialog from "./shelter/shelter-dialog";
 import { useTranslations } from "next-intl";
 import ShelterMarkers from "./shelter/shelter-markers";
 import plateBoundaries from "@/data/plate_boundaries.json";
+import { useOrganizationContext } from "@/context/organization-context";
+import { useSearchParams } from "next/navigation";
+import AddDamageReportDialog from "./damage-reports/add-damage-report-dialog";
+import AddDialog from "./common/add-dialog";
+import DamageReportsMarkers from "./damage-reports/damage-reports-markers";
 
 export const generateMarkerIcon = ({
   color = "#E74C3C",
@@ -89,11 +94,17 @@ const MapClickHandler = ({
 
 export default function MainMap() {
   const mapRef = useRef<Map>(null);
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q");
+  const { currentOrganization } = useOrganizationContext();
   const [center, setCenter] = useState<LatLngTuple>([21.975, 96.083]);
   const [clickedPosition, setClickedPosition] = useState<LatLngTuple | null>(
     null
   );
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isShelterDialogOpen, setIsShelterDialogOpen] = useState(false);
+  const [isDamageReportDialogOpen, setIsDamageReportDialogOpen] =
+    useState(false);
   const t = useTranslations("HomePage");
 
   const { data, isPending, isSuccess } = useGetEarthquakes();
@@ -118,7 +129,8 @@ export default function MainMap() {
 
   const handleMapClick = (latlng: LatLngTuple) => {
     setClickedPosition(latlng);
-    setIsShelterDialogOpen(true);
+    setIsAddDialogOpen(true);
+    //setIsShelterDialogOpen(true);
   };
 
   if (isPending) {
@@ -164,14 +176,16 @@ export default function MainMap() {
         />
         <ZoomControl position="topleft" />
         <MapClickHandler onClick={handleMapClick} />
-        {clickedPosition && (
+        {/* {clickedPosition && (
           <Marker
             position={clickedPosition}
             icon={generateMarkerIcon({ color: "#22c55e" })}
           >
             <Popup>
               <div>
-                <h3 className="font-bold mb-3">{t("add_shelter")}</h3>
+                <h3 className="font-bold mb-3">
+                  {t("add_shelter")} / {t("add_damage_report")}
+                </h3>
                 <Button
                   variant="outline"
                   size="sm"
@@ -179,11 +193,19 @@ export default function MainMap() {
                 >
                   {t("add_shelter")}
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsDamageReportDialogOpen(true)}
+                >
+                  {t("add_damage_report")}
+                </Button>
               </div>
             </Popup>
           </Marker>
-        )}
+        )} */}
         <ShelterMarkers />
+        <DamageReportsMarkers />
         <Marker
           key={"current-location"}
           position={center}
@@ -196,7 +218,7 @@ export default function MainMap() {
           </Popup>
         </Marker>
       </MapContainer>
-      <EarthquakeDrawer />
+      {/* <EarthquakeDrawer /> */}
       <Button
         size="icon"
         className="absolute bottom-10 right-5 z-[500] rounded-full"
@@ -242,11 +264,33 @@ export default function MainMap() {
         </PopoverContent>
       </Popover>
       {clickedPosition && (
+        <AddDialog
+          open={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+          setAddShelter={setIsShelterDialogOpen}
+          setAddDamageReport={setIsDamageReportDialogOpen}
+        />
+      )}
+      {clickedPosition && currentOrganization?.id && (
         <ShelterDialog
           open={isShelterDialogOpen}
           onOpenChange={setIsShelterDialogOpen}
           position={clickedPosition}
         />
+      )}
+      {clickedPosition && isDamageReportDialogOpen && (
+        <AddDamageReportDialog
+          open={isDamageReportDialogOpen}
+          onOpenChange={setIsDamageReportDialogOpen}
+          position={clickedPosition}
+        />
+      )}
+      {q === "add-shelter" && (
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[200px] bg-primary z-[500] rounded border border-primary/20 p-2">
+          <p className=" text-xs text-primary-foreground">
+            Click on the map to select a location and add a new shelter
+          </p>
+        </div>
       )}
     </div>
   );

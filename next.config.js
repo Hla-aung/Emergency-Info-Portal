@@ -19,6 +19,7 @@ module.exports = async (phase) => {
         "@app": __dirname + "/app",
         "@messages": __dirname + "/messages",
         "@prisma": __dirname + "/prisma",
+        "expo-secure-store": false,
       };
       return config;
     },

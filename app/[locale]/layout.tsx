@@ -9,6 +9,8 @@ import { Inter } from "next/font/google";
 import "@/app/globals.css";
 import { cn } from "@/lib/utils";
 import MenuBar from "@/components/common/menu-bar";
+import FloatingNav from "@/components/common/floating-nav";
+import Chatbot from "@/components/chatbot/chatbot";
 
 type Props = {
   children: ReactNode;
@@ -41,6 +43,7 @@ export const metadata: Metadata = {
     title: APP_NAME,
     description: APP_DESCRIPTION,
   },
+  manifest: "/manifest.json",
 };
 
 const inter = Inter({ subsets: ["latin"] });
@@ -61,7 +64,8 @@ export default async function LocaleLayout({ children, params }: Props) {
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>
             {children}
-            <MenuBar />
+            <FloatingNav />
+            <Chatbot />
           </Providers>
         </NextIntlClientProvider>
       </body>

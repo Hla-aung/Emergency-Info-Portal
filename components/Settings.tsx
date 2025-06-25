@@ -8,13 +8,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useOrganizationContext } from "@/context/organization-context";
 import { PushSubscriptionContext } from "@/context/push-subscription-context";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import {
   useCreatePushSubscription,
   useDeletePushSubscription,
 } from "@/lib/query/use-push-subscriptions";
-import { Bell, Globe, Loader2 } from "lucide-react";
+import { useKindeAuth } from "@kinde-oss/kinde-auth-nextjs";
+import { Bell, Building2, Globe, Loader2 } from "lucide-react";
 import { Locale, useLocale, useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import type { MouseEventHandler } from "react";
@@ -22,6 +24,8 @@ import { use, useTransition } from "react";
 
 export default function Settings() {
   const t = useTranslations("Settings");
+
+  const { isAuthenticated } = useKindeAuth();
 
   const context = use(PushSubscriptionContext);
 
@@ -37,6 +41,8 @@ export default function Settings() {
     registration,
     setRegistration,
   } = context;
+
+  const { currentOrganization } = useOrganizationContext();
 
   const {
     mutate: createPushSubscription,
@@ -153,6 +159,25 @@ export default function Settings() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 w-full">
+        <Card>
+          <CardHeader className="flex flex-row items-center gap-4 space-y-0">
+            <Building2 className="h-5 w-5" />
+
+            <CardTitle>{t("organization")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => {
+                router.push("/organization-setup");
+              }}
+              className="w-full"
+              disabled={!!currentOrganization || !isAuthenticated}
+            >
+              {t("create_organization")}
+            </Button>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center gap-4 space-y-0">
             <Bell className="h-5 w-5" />

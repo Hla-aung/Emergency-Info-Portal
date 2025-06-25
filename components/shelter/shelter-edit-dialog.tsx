@@ -38,6 +38,7 @@ import * as z from "zod";
 import { Loader2, Pencil } from "lucide-react";
 import { useState } from "react";
 import { Shelter } from "@prisma/client";
+import { toast } from "sonner";
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -58,9 +59,11 @@ export default function ShelterEditDialog({ shelter }: ShelterEditDialogProps) {
       capacity: shelter.capacity,
       type: shelter.type,
       isAvailable: shelter.isAvailable,
+      isAccessible: shelter.isAccessible ?? true,
       contactName: shelter.contactName || "",
       contactPhone: shelter.contactPhone || "",
       notes: shelter.notes || "",
+      organizationId: shelter.organizationId || "",
       resourcesAvailable: shelter.resourcesAvailable || [],
     },
   });
@@ -68,14 +71,21 @@ export default function ShelterEditDialog({ shelter }: ShelterEditDialogProps) {
   const { mutate: updateShelter, isPending } = useUpdateShelter();
 
   const handleUpdate = (data: FormValues) => {
+    console.log("update", data);
     updateShelter(
-      { id: shelter.id, data: data as UpdateShelterDto },
+      {
+        organizationId: shelter.organizationId,
+        id: shelter.id,
+        data: data as UpdateShelterDto,
+      },
       {
         onSuccess: () => {
+          toast.success("Shelter updated successfully");
           setIsOpen(false);
+          form.reset();
         },
         onError: (error) => {
-          alert(error);
+          toast.error(error.message || "Failed to update shelter");
         },
       }
     );
@@ -148,6 +158,7 @@ export default function ShelterEditDialog({ shelter }: ShelterEditDialogProps) {
                         type="number"
                         placeholder={t("capacity")}
                         {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
                       />
                     </FormControl>
                     <FormMessage />
@@ -227,6 +238,23 @@ export default function ShelterEditDialog({ shelter }: ShelterEditDialogProps) {
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel>{t("is_available")}</FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="isAccessible"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>{t("is_accessible")}</FormLabel>
                     </div>
                   </FormItem>
                 )}

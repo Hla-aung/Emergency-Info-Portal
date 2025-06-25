@@ -3,7 +3,7 @@
 import React from "react";
 
 import dynamic from "next/dynamic";
-import { useCheckPushSubscription } from "@/hooks/use-push-subscription";
+import { useCheckPushSubscription } from "@/hooks/use-check-push-subscription";
 
 const MainMap = dynamic(() => import("@/components/MainMap"), {
   ssr: false,

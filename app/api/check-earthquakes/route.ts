@@ -22,7 +22,7 @@ export async function POST() {
 
     await updateLastEarthquakeId(latest.id);
 
-    const title = "🌍 Earthquake Alert";
+    const title = "Earthquake Alert 🌍";
     const body = `Magnitude ${latest.properties.mag} earthquake detected near ${latest.properties.place}`;
 
     const payload = JSON.stringify({

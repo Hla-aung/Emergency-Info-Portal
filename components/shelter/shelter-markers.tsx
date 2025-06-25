@@ -57,7 +57,6 @@ const ShelterMarkers = () => {
               <p className="!m-0 !my-0.5">
                 {t("notes")}: {shelter.notes}
               </p>
-              <ShelterActions shelter={shelter} />
             </div>
           </Popup>
         </Marker>
