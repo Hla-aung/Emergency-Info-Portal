@@ -15,7 +15,7 @@ import L, { LatLngTuple, Map } from "leaflet";
 import { useGetEarthquakes } from "@/lib/query/use-earthquake";
 import LoadingScreen from "./common/loading-screen";
 import { Button } from "@/components/ui/button";
-import { Info, Locate, TestTube } from "lucide-react";
+import { Filter, Info, Locate, TestTube } from "lucide-react";
 import EarthquakeDrawer from "./earthquake/earthquake-drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import ShelterDialog from "./shelter/shelter-dialog";
@@ -27,6 +27,13 @@ import { useSearchParams } from "next/navigation";
 import AddDamageReportDialog from "./damage-reports/add-damage-report-dialog";
 import AddDialog from "./common/add-dialog";
 import DamageReportsMarkers from "./damage-reports/damage-reports-markers";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+} from "./ui/dropdown-menu";
 
 export const generateMarkerIcon = ({
   color = "#E74C3C",
@@ -105,6 +112,10 @@ export default function MainMap() {
   const [isShelterDialogOpen, setIsShelterDialogOpen] = useState(false);
   const [isDamageReportDialogOpen, setIsDamageReportDialogOpen] =
     useState(false);
+
+  const [showShelters, setShowShelters] = useState(true);
+  const [showDamageReports, setShowDamageReports] = useState(true);
+
   const t = useTranslations("HomePage");
 
   const { data, isPending, isSuccess } = useGetEarthquakes();
@@ -204,8 +215,8 @@ export default function MainMap() {
             </Popup>
           </Marker>
         )} */}
-        <ShelterMarkers />
-        <DamageReportsMarkers />
+        {showShelters && <ShelterMarkers />}
+        {showDamageReports && <DamageReportsMarkers />}
         <Marker
           key={"current-location"}
           position={center}
@@ -222,11 +233,11 @@ export default function MainMap() {
       <Button
         size="icon"
         className="absolute bottom-10 right-5 z-[500] rounded-full"
-        onClick={() => handleLocate({ maxZoom: 16 })}
+        onClick={() => handleLocate({ maxZoom: 10 })}
       >
         <Locate />
       </Button>
-      <Popover>
+      {/* <Popover>
         <PopoverTrigger asChild>
           <Button
             size="icon"
@@ -262,7 +273,32 @@ export default function MainMap() {
             </div>
           </div>
         </PopoverContent>
-      </Popover>
+      </Popover> */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="absolute top-5 right-5 z-[500] rounded-full"
+          >
+            <Filter />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-fit z-[500]">
+          <DropdownMenuCheckboxItem
+            checked={showShelters}
+            onCheckedChange={setShowShelters}
+          >
+            Show Shelters
+          </DropdownMenuCheckboxItem>
+          <DropdownMenuCheckboxItem
+            checked={showDamageReports}
+            onCheckedChange={setShowDamageReports}
+          >
+            Show Damage Reports
+          </DropdownMenuCheckboxItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       {clickedPosition && (
         <AddDialog
           open={isAddDialogOpen}

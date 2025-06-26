@@ -1,19 +1,37 @@
 "use client";
 
-import { useDamageReports } from "@/lib/query/use-damage-reports";
+import {
+  useAddDamageReportComment,
+  useDamageReports,
+} from "@/lib/query/use-damage-reports";
 import { generateMarkerIcon } from "@/components/MainMap";
 import { useTranslations } from "next-intl";
-import React from "react";
+import React, { useState } from "react";
 import { Marker, Popup } from "react-leaflet";
-import { AlertTriangle, Clock, DollarSign, User, MapPin } from "lucide-react";
+import {
+  AlertTriangle,
+  Clock,
+  DollarSign,
+  User,
+  MapPin,
+  Send,
+  Share2,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DamageType, DamageSeverity, ReportStatus } from "@prisma/client";
+import { DamageReport } from "@/lib/api/damage-reports";
+import { Button } from "../ui/button";
+import { ScrollArea } from "../ui/scroll-area";
+import { Input } from "../ui/input";
+import { toast } from "sonner";
 
 const DamageReportsMarkers = () => {
   const t = useTranslations();
 
   const { data: damageReportsData } = useDamageReports();
   const damageReports = damageReportsData?.damageReports || [];
+  const [isOpenComments, setIsOpenComments] = useState(false);
+  const [comment, setComment] = useState("");
 
   // Function to get marker color based on severity
   const getMarkerColor = (severity: DamageSeverity) => {
@@ -87,6 +105,28 @@ const DamageReportsMarkers = () => {
     }
   };
 
+  const { mutate: addComment } = useAddDamageReportComment();
+
+  const handleAddComment = (reportId: string, comment: string) => {
+    addComment({ damageReportId: reportId, comment });
+  };
+
+  const handleShare = async (report: DamageReport) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Help! I have been damaged`,
+          text: `I'm in ${report.location} and I'm in need of help.`,
+          url: `https://www.google.com/maps?q=${report?.latitude},${report?.longitude}`,
+        });
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          toast.error(t("shareFailed"));
+        }
+      }
+    }
+  };
+
   return (
     <>
       {damageReports?.map((report) => (
@@ -102,6 +142,13 @@ const DamageReportsMarkers = () => {
                   <AlertTriangle className="text-destructive size-5" />
                   {report.title}
                 </h3>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleShare(report)}
+                >
+                  <Share2 />
+                </Button>
               </div>
 
               {/* Severity and Status Badges */}
@@ -116,47 +163,36 @@ const DamageReportsMarkers = () => {
                 >
                   {getSeverityLabel(report.severity)}
                 </Badge>
-                <Badge variant="outline">{getStatusLabel(report.status)}</Badge>
+                {/* <Badge variant="outline">{getStatusLabel(report.status)}</Badge> */}
                 {report.isUrgent && <Badge variant="destructive">Urgent</Badge>}
               </div>
 
               {/* Description */}
-              <p className="text-sm text-muted-foreground mb-2">
+              <p className="text-sm text-muted-foreground !m-0 !my-0.5">
                 {report.description}
               </p>
 
               {/* Location */}
-              <div className="flex items-center gap-2 mb-2">
-                <MapPin className="size-4 text-muted-foreground" />
+              <div className="flex items-center gap-2 !m-0 !my-0.5">
+                <MapPin className="size-4 text-muted-foreground flex-shrink-0" />
                 <span className="text-sm">{report.location}</span>
               </div>
 
               {/* Damage Type */}
-              <p className="text-sm mb-2">
+              <p className="text-sm !m-0 !my-0.5">
                 <span className="font-medium">Type:</span>{" "}
                 {getDamageTypeLabel(report.damageType)}
               </p>
 
               {/* Priority */}
-              <p className="text-sm mb-2">
+              <p className="text-sm !m-0 !my-0.5">
                 <span className="font-medium">Priority:</span> {report.priority}
                 /10
               </p>
 
-              {/* Estimated Cost */}
-              {report.estimatedCost && (
-                <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className="size-4 text-muted-foreground" />
-                  <span className="text-sm">
-                    <span className="font-medium">Estimated Cost:</span> $
-                    {report.estimatedCost.toLocaleString()}
-                  </span>
-                </div>
-              )}
-
               {/* People Affected */}
               {report.isPeopleDamaged && (
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 !m-0 !my-0.5">
                   <User className="size-4 text-muted-foreground" />
                   <span className="text-sm">
                     <span className="font-medium">People Affected:</span>{" "}
@@ -167,7 +203,7 @@ const DamageReportsMarkers = () => {
 
               {/* Affected Area */}
               {report.affectedArea && (
-                <p className="text-sm mb-2">
+                <p className="text-sm !m-0 !my-0.5">
                   <span className="font-medium">Affected Area:</span>{" "}
                   {report.affectedArea}
                 </p>
@@ -175,7 +211,7 @@ const DamageReportsMarkers = () => {
 
               {/* Reporter Information */}
               {report.reporterName && (
-                <div className="border-t pt-2 mt-2">
+                <div className="border-t pt-2 !m-0 !my-0.5">
                   <p className="text-sm text-muted-foreground">
                     <span className="font-medium">Reported by:</span>{" "}
                     {report.reporterName}
@@ -190,7 +226,7 @@ const DamageReportsMarkers = () => {
               )}
 
               {/* Timestamp */}
-              <div className="flex items-center gap-2 mt-3 pt-2 border-t">
+              <div className="flex items-center gap-2 !m-0 !my-0.5">
                 <Clock className="size-4 text-muted-foreground" />
                 <span className="text-xs text-muted-foreground">
                   {new Date(report.createdAt).toLocaleDateString()} at{" "}
@@ -207,13 +243,67 @@ const DamageReportsMarkers = () => {
                 </div>
               )}
 
-              {/* <div className="mt-2 pt-2 border-t">
-                {report.comments.map((comment) => (
-                  <div key={comment.id}>
-                    <p className="text-sm">{comment.comment}</p>
+              {/* Comments */}
+              <div className="mt-2 pt-2 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsOpenComments(!isOpenComments)}
+                >
+                  {isOpenComments ? "Hide Comments" : "Show Comments"}
+                </Button>
+              </div>
+
+              {isOpenComments && (
+                <ScrollArea className="mt-2 pt-2 border-t h-[150px]">
+                  {report.comments && report.comments.length > 0 ? (
+                    report.comments.map((comment) => (
+                      <div
+                        key={comment.id}
+                        className="rounded-md bg-muted mb-1 p-1 pt-0"
+                      >
+                        <p className="text-sm !m-0 !my-0.5">
+                          {comment.comment}
+                        </p>
+                        <span className="text-xs text-muted-foreground !m-0 !my-0.5">
+                          {new Date(comment.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      No comments yet
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2 mt-2">
+                    <Input
+                      type="text"
+                      placeholder="Add a comment"
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          if (comment) {
+                            handleAddComment(report.id, comment);
+                          }
+                        }
+                      }}
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        if (comment) {
+                          handleAddComment(report.id, comment);
+                        }
+                        setComment("");
+                      }}
+                      disabled={!comment}
+                    >
+                      <Send />
+                    </Button>
                   </div>
-                ))}
-              </div> */}
+                </ScrollArea>
+              )}
             </div>
           </Popup>
         </Marker>
