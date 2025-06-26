@@ -114,7 +114,8 @@
     "occupantCheckedOutSuccess": "အသုံးပြုသူ အောင်မြင်စွာ ထွက်ပြီးပါပြီ",
     "failedToCheckOutOccupant": "အသုံးပြုသူထွက်ရာတွင် မအောင်မြင်ပါ",
     "failedToFetchOccupants": "အသုံးပြုသူများကို ရယူရာတွင် မအောင်မြင်ပါ",
-    "notSpecified": "သတ်မှတ်မထားပါ"
+    "notSpecified": "သတ်မှတ်မထားပါ",
+    "download_vcard": "သိမ်းဆည်းရန်"
   },
   "Settings": {
     "settings": "ဆက်တင်များ",

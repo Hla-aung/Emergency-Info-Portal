@@ -230,6 +230,9 @@ importers:
       vaul:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      vcard-creator:
+        specifier: ^0.7.2
+        version: 0.7.2
       web-push:
         specifier: ^3.6.7
         version: 3.6.7
@@ -4125,6 +4128,9 @@ packages:
     peerDependencies:
       react: ^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc
       react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc
+
+  vcard-creator@0.7.2:
+    resolution: {integrity: sha512-DiZpZqie2aPoRec5bPO3WmXy/+Yh1Dl01Go5VyDnn5iV2KhN6d3S16yZoGz9iq27U6l+o6m68Ub8JQz8TnbNYA==}
 
   vfile-message@4.0.2:
     resolution: {integrity: sha512-jRDZ1IMLttGj41KcZvlrYAaI3CfqpLpfpf+Mfig13viT6NKvRzWZ+lXz0Y5D60w6uJIBAOGq9mSHf0gktF0duw==}
@@ -8512,6 +8518,8 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
       - '@types/react-dom'
+
+  vcard-creator@0.7.2: {}
 
   vfile-message@4.0.2:
     dependencies:

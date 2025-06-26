@@ -206,6 +206,14 @@ const DamageReportsMarkers = () => {
                   </p>
                 </div>
               )}
+
+              {/* <div className="mt-2 pt-2 border-t">
+                {report.comments.map((comment) => (
+                  <div key={comment.id}>
+                    <p className="text-sm">{comment.comment}</p>
+                  </div>
+                ))}
+              </div> */}
             </div>
           </Popup>
         </Marker>

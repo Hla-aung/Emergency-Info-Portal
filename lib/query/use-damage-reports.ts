@@ -70,3 +70,18 @@ export const useDamageReportStatistics = (
       damageReportsApi.getDamageReportStatistics(startDate, endDate),
   });
 };
+
+export const useAddDamageReportComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { damageReportId: string; comment: string }) =>
+      damageReportsApi.addDamageReportComment(
+        data.damageReportId,
+        data.comment
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["damage-report"] });
+    },
+  });
+};

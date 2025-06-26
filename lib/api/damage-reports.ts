@@ -1,5 +1,10 @@
 import { ApiManager } from "./axios";
-import { DamageType, DamageSeverity, ReportStatus } from "@prisma/client";
+import {
+  DamageType,
+  DamageSeverity,
+  ReportStatus,
+  DamageReportComment,
+} from "@prisma/client";
 
 export interface DamageReport {
   id: string;
@@ -24,6 +29,7 @@ export interface DamageReport {
   reporterPhone?: string;
   createdAt: string;
   updatedAt: string;
+  comments: DamageReportComment[];
 }
 
 export interface CreateDamageReportDto {
@@ -151,6 +157,19 @@ export const damageReportsApi = {
 
     const response = await ApiManager.get(
       `/damage-reports/statistics?${params.toString()}`
+    );
+    return response.data;
+  },
+
+  addDamageReportComment: async (
+    damageReportId: string,
+    comment: string
+  ): Promise<DamageReportComment> => {
+    const response = await ApiManager.post(
+      `/damage-reports/${damageReportId}/comment`,
+      {
+        comment,
+      }
     );
     return response.data;
   },
