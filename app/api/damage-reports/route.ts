@@ -40,6 +40,9 @@ export async function GET(request: NextRequest) {
       },
       take,
       skip,
+      include: {
+        comments: true,
+      },
     });
 
     // Get total count for pagination
@@ -124,6 +127,7 @@ export async function POST(request: NextRequest) {
         reporterName: body.reporterName || null,
         reporterEmail: body.reporterEmail || null,
         reporterPhone: body.reporterPhone || null,
+        comments: body.comments || [],
       },
     });
 

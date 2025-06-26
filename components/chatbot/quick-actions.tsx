@@ -34,13 +34,13 @@ const QuickActions = ({
     useState<GeolocationPosition | null>(null);
 
   const quickActions: QuickAction[] = [
-    {
-      id: "shelters",
-      label: "Find Shelters",
-      icon: <Home className="h-4 w-4" />,
-      query: "Where are the nearest emergency shelters?",
-      color: "default",
-    },
+    // {
+    //   id: "shelters",
+    //   label: "Find Shelters",
+    //   icon: <Home className="h-4 w-4" />,
+    //   query: "Where are the nearest emergency shelters?",
+    //   color: "default",
+    // },
     {
       id: "emergency",
       label: "Emergency Contact",

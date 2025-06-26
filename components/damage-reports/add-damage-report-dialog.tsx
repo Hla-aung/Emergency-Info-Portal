@@ -77,7 +77,7 @@ export default function AddDamageReportDialog({
       longitude: position?.[1],
       damageType: undefined,
       severity: undefined,
-      estimatedCost: undefined,
+      estimatedCost: 0,
       affectedArea: "",
       priority: 1,
       isPeopleDamaged: false,
@@ -261,7 +261,6 @@ export default function AddDamageReportDialog({
                                 "BRIDGES",
                                 "BUILDINGS",
                                 "OTHER",
-                                "PERSON",
                               ] as DamageType[]
                             ).map((type) => (
                               <SelectItem key={type} value={type}>
@@ -344,7 +343,7 @@ export default function AddDamageReportDialog({
                 />
 
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField
+                  {/* <FormField
                     control={form.control}
                     name="estimatedCost"
                     render={({ field }) => (
@@ -367,7 +366,7 @@ export default function AddDamageReportDialog({
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                  /> */}
 
                   <FormField
                     control={form.control}

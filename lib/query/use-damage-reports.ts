@@ -81,7 +81,7 @@ export const useAddDamageReportComment = () => {
         data.comment
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["damage-report"] });
+      queryClient.invalidateQueries({ queryKey: ["damage-reports"] });
     },
   });
 };

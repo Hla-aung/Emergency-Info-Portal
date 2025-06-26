@@ -59,7 +59,7 @@ export const damageReportFormSchema = z.object({
     .string()
     .max(100, "Name must be less than 100 characters")
     .optional(),
-  reporterEmail: z.string().email("Invalid email address").optional(),
+  reporterEmail: z.string().optional(),
   reporterPhone: z
     .string()
     .max(20, "Phone must be less than 20 characters")
