@@ -6,12 +6,48 @@ import { useTranslations } from "next-intl";
 import React from "react";
 import { Marker, Popup } from "react-leaflet";
 import { Check, X } from "lucide-react";
+import VCard from "vcard-creator";
 import ShelterActions from "./shelter-actions";
+import { Shelter } from "@prisma/client";
+import { Button } from "../ui/button";
 
 const ShelterMarkers = () => {
   const t = useTranslations("Shelter");
 
   const { data: shelters } = useShelters();
+
+  const generateVCard = (shelter: Shelter) => {
+    const vcard = new VCard();
+    if (shelter.contactName && shelter.contactName !== "") {
+      vcard.addName(shelter.contactName);
+    }
+    if (shelter.phone) {
+      vcard.addPhoneNumber(shelter.phone, "PREF;WORK");
+    }
+    if (shelter.contactPhone) {
+      vcard.addPhoneNumber(shelter.contactPhone, "PREF;HOME");
+    }
+    if (shelter.location) {
+      vcard.addAddress(shelter.location);
+    }
+    if (shelter.name) {
+      vcard.addCompany(shelter.name);
+    }
+    if (shelter.notes) {
+      vcard.addNote(shelter.notes);
+    }
+    if (shelter.location) {
+      vcard.addAddress(shelter.location);
+    }
+    const vcardString = vcard.toString();
+    const blob = new Blob([vcardString], { type: "text/vcard" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${shelter.name}.vcf`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <>
@@ -57,6 +93,9 @@ const ShelterMarkers = () => {
               <p className="!m-0 !my-0.5">
                 {t("notes")}: {shelter.notes}
               </p>
+              <Button onClick={() => generateVCard(shelter)}>
+                {t("download_vcard")}
+              </Button>
             </div>
           </Popup>
         </Marker>

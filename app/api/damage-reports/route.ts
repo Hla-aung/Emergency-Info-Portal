@@ -24,6 +24,9 @@ export async function GET(request: NextRequest) {
       ...(isPeopleDamaged !== null && {
         isPeopleDamaged: isPeopleDamaged === "true",
       }),
+      createdAt: {
+        gte: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
+      },
     };
 
     // Build pagination

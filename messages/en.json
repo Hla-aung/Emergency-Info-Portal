@@ -114,7 +114,8 @@
     "occupantCheckedOutSuccess": "Occupant checked out successfully",
     "failedToCheckOutOccupant": "Failed to check out occupant",
     "failedToFetchOccupants": "Failed to fetch occupants",
-    "notSpecified": "Not specified"
+    "notSpecified": "Not specified",
+    "download_vcard": "Save contact"
   },
   "Settings": {
     "settings": "Settings",
