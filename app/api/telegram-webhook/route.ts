@@ -6,7 +6,7 @@ const bot = new TelegramBot(
   process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN as string
 );
 
-export default async function POST(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { message } = body;
