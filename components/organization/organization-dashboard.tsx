@@ -32,6 +32,7 @@ import { ShelterStatusTable } from "./shelter-status-table";
 import { OrganizationMembers } from "./organization-members";
 import { OrganizationStatistics } from "./organization-statistics";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface OrganizationDashboardProps {
   organizationId: string;
@@ -110,6 +111,13 @@ export function OrganizationDashboard({
 
   const { organization, userRole, statistics } = data;
 
+  const handleSubscribeToTelegram = () => {
+    window.open(
+      `https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME}`,
+      "_blank"
+    );
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -139,12 +147,18 @@ export function OrganizationDashboard({
         onValueChange={setActiveTab}
         className="space-y-4"
       >
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList
+          className={cn(
+            "grid w-full",
+            userRole === "MEMBER" ? "grid-cols-2" : "grid-cols-3"
+          )}
+        >
           {/* <TabsTrigger value="overview">{t("overview")}</TabsTrigger> */}
           <TabsTrigger value="shelters">{t("shelters")}</TabsTrigger>
           {(userRole === "OWNER" || userRole === "ADMIN") && (
             <TabsTrigger value="members">{t("members")}</TabsTrigger>
           )}
+          <TabsTrigger value="settings">{t("settings")}</TabsTrigger>
         </TabsList>
 
         {/* <TabsContent value="overview" className="space-y-4">
@@ -232,6 +246,20 @@ export function OrganizationDashboard({
             <OrganizationMembers members={members} userRole={userRole} />
           </TabsContent>
         )}
+        <TabsContent value="settings" className="space-y-4">
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("telegramSettings")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={handleSubscribeToTelegram}>
+                  {t("telegramSettingsDescription")}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   );

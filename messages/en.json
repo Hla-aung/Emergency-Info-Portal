@@ -246,6 +246,9 @@
     "realtimeConnecting": "Connecting to real-time service...",
     "new": "New",
     "removeMember": "Remove Member",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "settings": "Settings",
+    "telegramSettings": "Telegram Settings",
+    "telegramSettingsDescription": "Configure your Telegram settings for real-time notifications"
   }
 }
