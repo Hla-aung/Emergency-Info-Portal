@@ -8,7 +8,7 @@ export const damageReportFormSchema = z.object({
     .max(200, "Title must be less than 200 characters"),
   description: z
     .string()
-    .min(10, "Description must be at least 10 characters")
+    .min(1, "Description is required")
     .max(1000, "Description must be less than 1000 characters"),
   location: z
     .string()

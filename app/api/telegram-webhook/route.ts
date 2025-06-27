@@ -6,14 +6,11 @@ const bot = new TelegramBot(
   process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN as string
 );
 
-export default async function handler(request: NextRequest) {
-  if (request.method !== "POST") {
-    return new NextResponse("Method not allowed", { status: 405 });
-  }
-
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { message } = body;
+    console.log(message);
 
     if (message.text && message.text === "/start") {
       const chatId = message.chat.id;
