@@ -43,15 +43,13 @@ const FloatingNav = () => {
       label: "Home",
       href: "/",
     },
-    ...(isAuthenticated
-      ? [
-          {
-            icon: <BarChart3 className="h-5 w-5" />,
-            label: "Dashboard",
-            href: "/dashboard",
-          },
-        ]
-      : []),
+
+    {
+      icon: <BarChart3 className="h-5 w-5" />,
+      label: "Dashboard",
+      href: "/dashboard",
+    },
+
     {
       icon: <Settings className="h-5 w-5" />,
       label: "Settings",
