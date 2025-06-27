@@ -246,6 +246,9 @@
     "realtimeConnecting": "Real-time ဝန်ဆောင်မှုသို့ ချိတ်ဆက်နေသည်...",
     "new": "အသစ်",
     "removeMember": "အဖွဲ့ဝင်အဖြစ်မှ ဖယ်ရှားမည်",
-    "viewDetails": "အသေးစိတ်ကြည့်ရန်"
+    "viewDetails": "အသေးစိတ်ကြည့်ရန်",
+    "settings": "အပြင်အဆင်များ",
+    "telegramSettings": "Telegram အပြင်အဆင်များ",
+    "telegramSettingsDescription": "Damage Report သတိပေးချက်များကို Telegram မှ ရယူပါ"
   }
 }

@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { DamageType, DamageSeverity, ReportStatus } from "@prisma/client";
+import TelegramBot from "node-telegram-bot-api";
+
+const bot = new TelegramBot(
+  process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN as string
+);
 
 export async function GET(request: NextRequest) {
   try {
@@ -130,6 +135,16 @@ export async function POST(request: NextRequest) {
         comments: body.comments || [],
       },
     });
+
+    const telegramUsers = await prisma.telegramUser.findMany();
+    if (telegramUsers.length > 0) {
+      for (const user of telegramUsers) {
+        await bot.sendMessage(
+          user.chatId,
+          `New damage report created: ${body.title} at ${body.location}`
+        );
+      }
+    }
 
     return NextResponse.json(damageReport, { status: 201 });
   } catch (error) {
